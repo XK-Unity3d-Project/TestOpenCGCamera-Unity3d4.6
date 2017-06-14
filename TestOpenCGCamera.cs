@@ -130,7 +130,7 @@ public class TestOpenCGCamera : MonoBehaviour {
 		//Debug.Log("OnRecvFrame...");
 		
 		//重点->这里是将IntPtr转换为byte[]数组.
-		int countBuf = 320 * 240;
+		int countBuf = (int)(pFrInfo.uiWidth * pFrInfo.uiHeight);
         byte[] bufHandle = new byte[countBuf];
 		Marshal.Copy(pImageBuffer, bufHandle, 0, countBuf);
         for (int i = 0; i < bufHandle.Length; i++)
@@ -141,7 +141,7 @@ public class TestOpenCGCamera : MonoBehaviour {
             }
             else
             {
-                Debug.Log("i " + i + ", val " + bufHandle[i]);
+                //Debug.Log("i " + i + ", val " + bufHandle[i]);
             }
         }
 
