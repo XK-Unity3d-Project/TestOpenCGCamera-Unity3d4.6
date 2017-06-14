@@ -46,6 +46,7 @@ public class TestOpenCGCamera : MonoBehaviour
 				{
 						Debug.Log("Device start...");
 						CGAPI.DeviceStart(mDeviceHandle);
+						SetCGCameraInfo();
 				}
 		}
 
@@ -193,8 +194,7 @@ public class TestOpenCGCamera : MonoBehaviour
 						StartCoroutine(GetTexture());
 				}
 
-				if (img != null)
-				{
+				if (img != null) {
 						GUI.DrawTexture(new Rect(10, 10, img.width, img.height), img);
 				}
 		}
@@ -206,6 +206,58 @@ public class TestOpenCGCamera : MonoBehaviour
 				if (www.isDone && www.error == null)
 				{
 						img = www.texture;
+				}
+		}
+
+		//设置CGCamera的通用参数.
+		void SetCGCameraInfo()
+		{
+				if (mDeviceHandle == IntPtr.Zero) {
+						return;
+				}
+				CGAPI.SetMirror(mDeviceHandle, emMirrorDirection.MD_HORIZONTAL, false);
+				CGAPI.SetMirror(mDeviceHandle, emMirrorDirection.MD_VERTICAL, false);
+				CGAPI.SetAnalogGain(mDeviceHandle, 63);
+				CGAPI.SetFrameSpeed(mDeviceHandle, emDeviceFrameSpeed.HIGH_SPEED, false);
+				CGAPI.SetFrameSpeedTune(mDeviceHandle, 0);
+
+				//在这里设置摄像头的分辨率.
+//				ResolutionParam param = new ResolutionParam();
+//				CGAPI.GetResolution(mDeviceHandle, ref param);
+//				param.type = 1; //摄像机输出图像的旋转有关.
+//				param.dri.devROISize.iHOffset = 0;
+//				param.dri.devROISize.iVOffset = 0;
+//				param.dri.devROISize.iWidth = 320;
+//				param.dri.devROISize.iHeight = 240;
+//				CGAPI.SetResolution(mDeviceHandle, param);
+		}
+
+		//设置CGCamera的参数,用于调整摄像头位置.
+		void SetPlayCGCameraInfo()
+		{
+				if (mDeviceHandle == IntPtr.Zero) {
+						return;
+				}
+				CGAPI.SetExposureTime(mDeviceHandle, 16383);
+		}
+
+		//设置CGCamera的参数,
+		void SetFindPointCGCameraInfo()
+		{
+				if (mDeviceHandle == IntPtr.Zero) {
+						return;
+				}
+				CGAPI.SetExposureTime(mDeviceHandle, 239);
+		}
+
+		void Update()
+		{
+				if (Input.GetKeyUp(KeyCode.P)) {
+						SetPlayCGCameraInfo();
+				}
+
+				if (Input.GetKeyUp(KeyCode.L)) {
+						SetFindPointCGCameraInfo();
 				}
 		}
 }
