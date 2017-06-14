@@ -26,6 +26,7 @@ public class TestOpenCGCamera : MonoBehaviour
 		int CameraFrameVal = 60;
 		int CGCamFrameCount;
 		int SnapshotCount;
+		const int SnapshotNum = 2;
 		public bool IsPlayCGCam;
 		public bool IsShowCGCamFrame;
 		Texture2D img = null;
@@ -124,7 +125,7 @@ public class TestOpenCGCamera : MonoBehaviour
 								SnapshotCount = 0;
 						}
 
-						if (SnapshotCount == 2) {
+						if (SnapshotCount == SnapshotNum) {
 								Snapshot();
 						}
 						SnapshotCount++;
@@ -210,7 +211,7 @@ public class TestOpenCGCamera : MonoBehaviour
 		void OnGUI()
 		{
 				if (IsPlayCGCam) {
-						if (Time.frameCount % 3 == 0) {
+						if (Time.frameCount % 4 == 0 && SnapshotCount != SnapshotNum) {
 								StartCoroutine(GetTexture());
 						}
 
