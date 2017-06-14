@@ -47,7 +47,7 @@ public class TestOpenCGCamera : MonoBehaviour {
 	void Update () {
 
 		if (Input.GetKeyUp(KeyCode.P)) {
-			bnSnapshot_Click();
+			Snapshot();
 		}
 //		testSaveCount++;
 //		if (testSaveCount == 100) {
@@ -81,16 +81,14 @@ public class TestOpenCGCamera : MonoBehaviour {
 	}
 
 
-	private void bnSnapshot_Click()
+	private void Snapshot()
 	{
 		if (mDeviceHandle != DeviceHandle.Zero)
 		{
-			DateTime time = DateTime.Now;
-			string strFile = "D:\\Image" + time.ToFileTime();
-			DeviceStatus devStatus = CGAPI.CaptureFile(mDeviceHandle, strFile, emDSFileType.FILE_BMP);
-			strFile += ".bmp";
+			string strFile = FilePath+"/CGCmaraTmp.png";
+			DeviceStatus devStatus = CGAPI.CaptureFile(mDeviceHandle, strFile, emDSFileType.FILE_PNG);
 			if (DeviceStatus.STATUS_OK == devStatus){
-				MessageBox.Show(strFile, "保存成功");
+				//MessageBox.Show(strFile, "保存成功");
 			} else{
 				MessageBox.Show(strFile, "保存失败");
 			}
@@ -183,7 +181,7 @@ public class TestOpenCGCamera : MonoBehaviour {
 
 			testSaveCount++;
 			if (testSaveCount == 10) {
-				bnSnapshot_Click();
+				Snapshot();
 			}
 		}
 	}
