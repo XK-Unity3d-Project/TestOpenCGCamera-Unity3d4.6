@@ -25,7 +25,6 @@ public class TestOpenCGCamera : MonoBehaviour
 		int CGCamFrameCount;
 		public bool IsPlayCGCam;
 		Texture2D img = null;
-		MeshRenderer MeshRenderCom;
 
 		[DllImport("user32")]  
 		static extern IntPtr GetForegroundWindow();
@@ -39,7 +38,6 @@ public class TestOpenCGCamera : MonoBehaviour
 				}
 				ImgPath = FilePath+"/CGCmaraTmp.png";
 
-				MeshRenderCom = GetComponent<MeshRenderer>();
 				uint[] adwVersion = new uint[4];
 				CGAPI.DeviceGetSDKVersion(adwVersion);
 				SearchDevices();
@@ -80,7 +78,8 @@ public class TestOpenCGCamera : MonoBehaviour
 								{
 										for (int i = 0; i < iCameraCounts; i++)
 										{
-												EnumDeviceParam edp = (EnumDeviceParam)Marshal.PtrToStructure((IntPtr)((int)ptr + i * Marshal.SizeOf(new EnumDeviceParam())), typeof(EnumDeviceParam));
+												EnumDeviceParam edp = (EnumDeviceParam)Marshal.PtrToStructure((IntPtr)((int)ptr + i * Marshal.SizeOf(new EnumDeviceParam())),
+																												typeof(EnumDeviceParam));
 												string strDevice = String.Format("{0} : {1}", edp.lpDeviceDesc, edp.devIndex);
 												Debug.Log("DeviceInfo "+strDevice);
 										}
@@ -93,7 +92,7 @@ public class TestOpenCGCamera : MonoBehaviour
 		public void OnRecvFrame(IntPtr pDevice, IntPtr pImageBuffer, ref DeviceFrameInfo pFrInfo, IntPtr lParam)
 		{
 				IntPtr pRGB24Buff = CGAPI.DeviceISP(mDeviceHandle, pImageBuffer, ref pFrInfo);
-				if (pRGB24Buff == null) {
+				if (pRGB24Buff == IntPtr.Zero) {
 						return;
 				}
 				//CGAPI.DeviceDisplayRGB24(mDeviceHandle, pRGB24Buff, ref pFrInfo); //显示图像有关.
@@ -122,7 +121,7 @@ public class TestOpenCGCamera : MonoBehaviour
 
 						if (CGCamFrameCount == 2) {
 								Snapshot();
-						}		
+						}
 				}
 				CGCamFrameCount++;
 		} 
@@ -184,29 +183,29 @@ public class TestOpenCGCamera : MonoBehaviour
 				}
 		}
 
-		void OnGUI()  
+		void OnGUI()
 		{
 				if (!IsPlayCGCam) {
-						return;	
+						return;
 				}
 
 				if (Time.frameCount % 3 == 0) {
 						StartCoroutine(GetTexture());
 				}
 
-				if (img != null)  
-				{  
-						GUI.DrawTexture(new Rect(10, 10, img.width, img.height), img);  
-				}  
+				if (img != null)
+				{
+						GUI.DrawTexture(new Rect(10, 10, img.width, img.height), img);
+				}
 		}
 
-		IEnumerator GetTexture()  
+		IEnumerator GetTexture()
 		{
-				WWW www = new WWW("file://"+ImgPath);  
-				yield return www;  
-				if (www.isDone && www.error == null)  
-				{  
+				WWW www = new WWW("file://"+ImgPath);
+				yield return www;
+				if (www.isDone && www.error == null)
+				{
 						img = www.texture;
-				}  
-		}  
+				}
+		}
 }
