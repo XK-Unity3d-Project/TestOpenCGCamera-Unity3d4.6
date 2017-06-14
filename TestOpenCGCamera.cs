@@ -16,297 +16,197 @@ using DeviceHandle = System.IntPtr;
 using System.Windows.Forms;
 using System.IO;
 
-public class TestOpenCGCamera : MonoBehaviour {
+public class TestOpenCGCamera : MonoBehaviour
+{
+		string FilePath;
+		string ImgPath = "";
+		static TestOpenCGCamera mThis;
+		DeviceHandle mDeviceHandle = IntPtr.Zero;
+		int CGCamFrameCount;
+		public bool IsPlayCGCam;
+		Texture2D img = null;
+		MeshRenderer MeshRenderCom;
 
-	[DllImport("user32")]  
-	static extern IntPtr GetForegroundWindow();
+		[DllImport("user32")]  
+		static extern IntPtr GetForegroundWindow();
 
-	string FilePath;
-	MeshRenderer MeshRenderCom;
-	// Use this for initialization
-	void Start () {
-		FilePath = UnityEngine.Application.dataPath + "/../CGCamera";
-		if (!Directory.Exists(FilePath)) {
-			Directory.CreateDirectory(FilePath);
+		// Use this for initialization
+		void Start () {
+				mThis = this;
+				FilePath = UnityEngine.Application.dataPath + "/../CGCamera";
+				if (!Directory.Exists(FilePath)) {
+						Directory.CreateDirectory(FilePath);
+				}
+				ImgPath = FilePath+"/CGCmaraTmp.png";
+
+				MeshRenderCom = GetComponent<MeshRenderer>();
+				uint[] adwVersion = new uint[4];
+				CGAPI.DeviceGetSDKVersion(adwVersion);
+				SearchDevices();
+				SelectedCGCameraDevice();
+				if (mDeviceHandle != IntPtr.Zero)
+				{
+						Debug.Log("Device start...");
+						CGAPI.DeviceStart(mDeviceHandle);
+				}
 		}
 
-		mThis = this;
-		MeshRenderCom = GetComponent<MeshRenderer>();
-		uint[] adwVersion = new uint[4];
-		CGAPI.DeviceGetSDKVersion(adwVersion);
-		SearchDevices();
-		SelectedCGCameraDevice();
-		if (mDeviceHandle != IntPtr.Zero)
+		//拍照并且保存.
+		private void Snapshot()
 		{
-			Debug.Log("Device start...");
-			CGAPI.DeviceStart(mDeviceHandle);
+				if (mDeviceHandle != DeviceHandle.Zero)
+				{
+						DeviceStatus devStatus = CGAPI.CaptureFile(mDeviceHandle, ImgPath, emDSFileType.FILE_PNG);
+						if (DeviceStatus.STATUS_OK == devStatus){
+								//Debug.Log("保存成功! "+ImgPath);
+								//MessageBox.Show(ImgPath, "保存成功");
+						} else{
+								MessageBox.Show(ImgPath, "保存失败");
+						}
+				}
 		}
-	}
-	
-	// Update is called once per frame
-	void Update () {
 
-		if (Input.GetKeyUp(KeyCode.P)) {
-			Snapshot();
-		}
-//		testSaveCount++;
-//		if (testSaveCount == 100) {
-//
-//			DateTime time = DateTime.Now;
-//			string strFile = "D:\\Image" + time.ToFileTime();
-//			DeviceStatus devStatus = CGAPI.CaptureFile(mDeviceHandle, strFile, emDSFileType.FILE_BMP);
-//			strFile += ".bmp";
-//			if (DeviceStatus.STATUS_OK == devStatus){
-//				MessageBox.Show(strFile, "保存成功");
-//			} else{
-//				MessageBox.Show(strFile, "保存失败");
-//			}
-
-			//string imgPath = FilePath + "/CGCamera.png";
-//			string strFile = FilePath + "/CGCamera.png";
-//			if (mDeviceHandle != DeviceHandle.Zero)
-//			{
-//				DeviceStatus devStatus = CGAPI.CaptureFile(mDeviceHandle, strFile, emDSFileType.FILE_PNG);
-//				//strFile += ".png";
-//
-//				if (DeviceStatus.STATUS_OK == devStatus){
-//					MessageBox.Show(strFile, "保存成功");
-//				} else{
-//					MessageBox.Show(strFile, "保存失败");
-//				}
-//			}
-//			Debug.Log("path "+strFile);
-			//bmp.Save(strFile, System.Drawing.Imaging.ImageFormat.Png);
-//		}
-	}
-
-
-	private void Snapshot()
-	{
-		if (mDeviceHandle != DeviceHandle.Zero)
+		void SearchDevices()
 		{
-			string strFile = FilePath+"/CGCmaraTmp.png";
-			DeviceStatus devStatus = CGAPI.CaptureFile(mDeviceHandle, strFile, emDSFileType.FILE_PNG);
-			if (DeviceStatus.STATUS_OK == devStatus){
-				//MessageBox.Show(strFile, "保存成功");
-			} else{
-				MessageBox.Show(strFile, "保存失败");
-			}
+				DeviceStatus devSatus = CGAPI.DeviceInitialSDK(IntPtr.Zero, false);
+				if (DeviceStatus.STATUS_OK == devSatus)
+				{
+						int iCameraCounts = 0;
+						devSatus = CGAPI.EnumDevice(IntPtr.Zero, ref iCameraCounts);
+						if (DeviceStatus.STATUS_OK == devSatus) {
+								IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf(new EnumDeviceParam()) * iCameraCounts);
+								devSatus = CGAPI.EnumDevice(ptr, ref iCameraCounts);
+								if (DeviceStatus.STATUS_OK == devSatus)
+								{
+										for (int i = 0; i < iCameraCounts; i++)
+										{
+												EnumDeviceParam edp = (EnumDeviceParam)Marshal.PtrToStructure((IntPtr)((int)ptr + i * Marshal.SizeOf(new EnumDeviceParam())), typeof(EnumDeviceParam));
+												string strDevice = String.Format("{0} : {1}", edp.lpDeviceDesc, edp.devIndex);
+												Debug.Log("DeviceInfo "+strDevice);
+										}
+								}
+								Marshal.FreeHGlobal(ptr);
+						}
+				}
 		}
-	}
 
-	static TestOpenCGCamera mThis;
-	DeviceHandle mDeviceHandle = IntPtr.Zero;
-
-	void SearchDevices()
-	{
-		DeviceStatus devSatus = CGAPI.DeviceInitialSDK(IntPtr.Zero, false);
-		if (DeviceStatus.STATUS_OK == devSatus)
+		public void OnRecvFrame(IntPtr pDevice, IntPtr pImageBuffer, ref DeviceFrameInfo pFrInfo, IntPtr lParam)
 		{
-            int iCameraCounts = 0;
-            devSatus = CGAPI.EnumDevice(IntPtr.Zero, ref iCameraCounts);
-            if (DeviceStatus.STATUS_OK == devSatus) {
-                IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf(new EnumDeviceParam()) * iCameraCounts);
-                devSatus = CGAPI.EnumDevice(ptr, ref iCameraCounts);
-                if (DeviceStatus.STATUS_OK == devSatus)
-                {
-                    for (int i = 0; i < iCameraCounts; i++)
-                    {
-                        EnumDeviceParam edp = (EnumDeviceParam)Marshal.PtrToStructure((IntPtr)((int)ptr + i * Marshal.SizeOf(new EnumDeviceParam())), typeof(EnumDeviceParam));
-                        string strDevice = String.Format("{0} : {1}", edp.lpDeviceDesc, edp.devIndex);
-						Debug.Log("DeviceInfo "+strDevice);
-                    }
-                }
-                Marshal.FreeHGlobal(ptr);
-            }
-		}
-	}
+				IntPtr pRGB24Buff = CGAPI.DeviceISP(mDeviceHandle, pImageBuffer, ref pFrInfo);
+				if (pRGB24Buff == null) {
+						return;
+				}
+				//CGAPI.DeviceDisplayRGB24(mDeviceHandle, pRGB24Buff, ref pFrInfo); //显示图像有关.
 
-	int testSaveCount;
-	public void OnRecvFrame(IntPtr pDevice, IntPtr pImageBuffer, ref DeviceFrameInfo pFrInfo, IntPtr lParam)
-	{
-		//Debug.Log("OnRecvFrame...");
-		
-		//重点->这里是将IntPtr转换为byte[]数组.
-		int countBuf = (int)(pFrInfo.uiWidth * pFrInfo.uiHeight);
-        byte[] bufHandle = new byte[countBuf];
-		Marshal.Copy(pImageBuffer, bufHandle, 0, countBuf);
-        for (int i = 0; i < bufHandle.Length; i++)
-        {
-            if (bufHandle[i] == 0)
-            {
-                continue;
-            }
-            else
-            {
-                //Debug.Log("i " + i + ", val " + bufHandle[i]);
-            }
-        }
-
-		IntPtr pRGB24Buff = CGAPI.DeviceISP(mDeviceHandle, pImageBuffer, ref pFrInfo);
-		if (pRGB24Buff != null)
-		{
-//			ushort timeTest = 0;
-//			CGAPI.GetExposureTime(mDeviceHandle, ref timeTest);
-//			Debug.Log("OnRecvFrame...timeTest ... "+timeTest);
-            /*if (false)
-            {
-                Bitmap bmp = new Bitmap((int)pFrInfo.uiWidth, (int)pFrInfo.uiHeight, (int)pFrInfo.uiWidth, System.Drawing.Imaging.PixelFormat.Format8bppIndexed, pRGB24Buff);
-                System.Drawing.Imaging.ColorPalette palette = bmp.Palette;
-                for (int i = 0; i < 256; i++)
-                {
-                    palette.Entries[i] = Color.FromArgb(i, i, i);
-                }
-                bmp.Palette = palette;
-            }*/
-			
-			/*if (false)
-			{
+				//Debug.Log("OnRecvFrame...");
 				//重点->这里是将IntPtr转换为byte[]数组.
-				int imgSize = (int)(pFrInfo.uiWidth * pFrInfo.uiHeight);
-				byte[] bufHandle = new byte[imgSize];
-				//当bufHandle用完后,一定要释放gch.
-				GCHandle gch = GCHandle.Alloc(bufHandle, GCHandleType.Pinned);    //固定托管内存
-				Marshal.WriteIntPtr(Marshal.UnsafeAddrOfPinnedArrayElement(bufHandle, 0), pImageBuffer);
+				int countBuf = (int)(pFrInfo.uiWidth * pFrInfo.uiHeight);
+				byte[] bufHandle = new byte[countBuf];
+				Marshal.Copy(pImageBuffer, bufHandle, 0, countBuf);
 				for (int i = 0; i < bufHandle.Length; i++)
 				{
-					if (bufHandle[i] == 0)
-					{
-						continue;
-					}
+						if (bufHandle[i] == 0)
+						{
+								continue;
+						}
+						else
+						{
+								//Debug.Log("i " + i + ", val " + bufHandle[i]);
+						}
 				}
-				gch.Free();
-			}*/
-			CGAPI.DeviceDisplayRGB24(mDeviceHandle, pRGB24Buff, ref pFrInfo);
 
-			testSaveCount++;
-			if (testSaveCount == 10) {
-				Snapshot();
-			}
-		}
-	}
+				if (IsPlayCGCam) {
+						if (CGCamFrameCount > 4) {
+								CGCamFrameCount = 0;
+						}
 
-	public static void OnReceiveFrame(IntPtr pDevice, IntPtr pImageBuffer, ref DeviceFrameInfo pFrInfo, IntPtr lParam)
-	{
-		mThis.OnRecvFrame(pDevice, pImageBuffer, ref pFrInfo, lParam);    
-	}
+						if (CGCamFrameCount == 2) {
+								Snapshot();
+						}		
+				}
+				CGCamFrameCount++;
+		} 
 
-	void OnApplicationQuit()
-	{
-		Debug.Log("OnApplicationQuit...");
-		CloseCGCamera();
-	}
-
-	private void CloseCGCamera()
-	{
-		if (mDeviceHandle != IntPtr.Zero)
+		public static void OnReceiveFrame(IntPtr pDevice, IntPtr pImageBuffer, ref DeviceFrameInfo pFrInfo, IntPtr lParam)
 		{
-			Debug.Log("CloseCGCamera...");
-			CGAPI.DeviceStop(mDeviceHandle);
-			CGAPI.CloseDevice(mDeviceHandle);
-			CGAPI.DeviceUnInit(mDeviceHandle);
-			CGAPI.DeviceRelease(mDeviceHandle);
-			mDeviceHandle = IntPtr.Zero;
-			CGAPI.DeviceUnInitialSDK();
+				mThis.OnRecvFrame(pDevice, pImageBuffer, ref pFrInfo, lParam);    
 		}
-	}
 
-	MovieTexture MovieCamera;
-	private void SelectedCGCameraDevice()
-	{
-		if (IntPtr.Zero != mDeviceHandle)
+		void OnApplicationQuit()
 		{
-			CGAPI.DeviceStop(mDeviceHandle);
-			CGAPI.SyncCloseDevice(mDeviceHandle);
-			CGAPI.DeviceUnInit(mDeviceHandle);
-			CGAPI.DeviceRelease(mDeviceHandle);
-			mDeviceHandle = IntPtr.Zero;
+				Debug.Log("OnApplicationQuit...");
+				CloseCGCamera();
 		}
-		else
+
+		private void CloseCGCamera()
 		{
-			byte byDev = 1;
-			DeviceStatus devStatus = CGAPI.OpenDeviceByUSBAddress(byDev, ref mDeviceHandle);
-			if (DeviceStatus.STATUS_OK == devStatus)
-			{
-				ReceiveFrameProc rfCallBack = new ReceiveFrameProc(OnReceiveFrame);
-				//不添加回调函数.
-				//devStatus = CGAPI.DeviceInit(mDeviceHandle, panelVideo.Handle, false, true);
-				//添加回调函数.
-				//devStatus = CGAPI.DeviceInitEx(mDeviceHandle, rfCallBack, IntPtr.Zero, panelVideo.Handle, true);
-
-				//IntPtr renderPtr = MeshRenderCom.materials[0].mainTexture.GetNativeTexturePtr();
-				IntPtr renderPtr = GetForegroundWindow();
-				//renderPtr = GetForegroundWindow();
-				//devStatus = CGAPI.DeviceInit(mDeviceHandle, renderPtr, false, true);
-//				MessageBox.Show("你显示的信息", "标题", MessageBoxButtons.OK);
-				//devStatus = CGAPI.DeviceInitEx(mDeviceHandle, rfCallBack, IntPtr.Zero, renderPtr, true);
-				//devStatus = CGAPI.DeviceInitEx(mDeviceHandle, null, IntPtr.Zero, renderPtr, true);
-
-//				bool isGetMode = false;
-//				CGAPI.DeviceSetUsedGetMode(mDeviceHandle, true);
-//				CGAPI.DeviceGetUsedGetMode(mDeviceHandle,   ref isGetMode);
-//				Debug.Log("isGetMode "+isGetMode);
-				devStatus = CGAPI.DeviceInitEx(mDeviceHandle, rfCallBack, IntPtr.Zero, renderPtr, true);
-				//devStatus = CGAPI.DeviceInitEx(mDeviceHandle, rfCallBack, IntPtr.Zero, IntPtr.Zero, true);
-				if (DeviceStatus.STATUS_OK == devStatus)
+				if (mDeviceHandle != IntPtr.Zero)
 				{
-					Debug.Log("Open CGCamera...");
+						Debug.Log("CloseCGCamera...");
+						CGAPI.DeviceStop(mDeviceHandle);
+						CGAPI.CloseDevice(mDeviceHandle);
+						CGAPI.DeviceUnInit(mDeviceHandle);
+						CGAPI.DeviceRelease(mDeviceHandle);
+						mDeviceHandle = IntPtr.Zero;
+						CGAPI.DeviceUnInitialSDK();
 				}
-			}
 		}
-	}
 
-	public Texture2D img = null;  
-	void OnGUI()  
-	{  
-		if (GUI.Button(new Rect(0, 0, 100, 20), "选择文件"))  
-		{  
+		private void SelectedCGCameraDevice()
+		{
+				if (IntPtr.Zero != mDeviceHandle)
+				{
+						CGAPI.DeviceStop(mDeviceHandle);
+						CGAPI.SyncCloseDevice(mDeviceHandle);
+						CGAPI.DeviceUnInit(mDeviceHandle);
+						CGAPI.DeviceRelease(mDeviceHandle);
+						mDeviceHandle = IntPtr.Zero;
+				}
+				else
+				{
+						byte byDev = 1;
+						DeviceStatus devStatus = CGAPI.OpenDeviceByUSBAddress(byDev, ref mDeviceHandle);
+						if (DeviceStatus.STATUS_OK == devStatus)
+						{
+								ReceiveFrameProc rfCallBack = new ReceiveFrameProc(OnReceiveFrame);
+								//不添加回调函数.
+								//devStatus = CGAPI.DeviceInit(mDeviceHandle, panelVideo.Handle, false, true);
+								//添加回调函数.
+								//devStatus = CGAPI.DeviceInitEx(mDeviceHandle, rfCallBack, IntPtr.Zero, panelVideo.Handle, true);
 
-			OpenFileDialog od = new OpenFileDialog();  
-			od.Title = "请选择头像图片";  
-			od.Multiselect = false;  
-			od.Filter = "图片文件(*.jpg,*.png,*.bmp)|*.jpg;*.png;*.bmp";  
-			if (od.ShowDialog() == DialogResult.OK)  
-			{
-				if (File.Exists(UnityEngine.Application.streamingAssetsPath + "/Temp/temp.bmp"))  
+								IntPtr renderPtr = GetForegroundWindow();
+								devStatus = CGAPI.DeviceInitEx(mDeviceHandle, rfCallBack, IntPtr.Zero, renderPtr, true);
+								if (DeviceStatus.STATUS_OK == devStatus)
+								{
+										Debug.Log("Open CGCamera...");
+								}
+						}
+				}
+		}
+
+		void OnGUI()  
+		{
+				if (!IsPlayCGCam) {
+						return;	
+				}
+
+				if (Time.frameCount % 3 == 0) {
+						StartCoroutine(GetTexture());
+				}
+
+				if (img != null)  
 				{  
-					File.Delete(UnityEngine.Application.streamingAssetsPath + "/Temp/temp.bmp");  
-					File.Copy(od.FileName, UnityEngine.Application.streamingAssetsPath + "/Temp/temp.bmp");  
+						GUI.DrawTexture(new Rect(10, 10, img.width, img.height), img);  
 				}  
-				else  
-				{  
-					File.Copy(od.FileName, UnityEngine.Application.streamingAssetsPath + "/Temp/temp.bmp");  
-				}  
-				StartCoroutine(GetTexture("file://"+UnityEngine.Application.streamingAssetsPath + "/Temp/temp.bmp"));  
-//				if (File.Exists(UnityEngine.Application.streamingAssetsPath + "/Temp/temp.png"))  
-//				{  
-//					File.Delete(UnityEngine.Application.streamingAssetsPath + "/Temp/temp.png");  
-//					File.Copy(od.FileName, UnityEngine.Application.streamingAssetsPath + "/Temp/temp.png");  
-//				}  
-//				else  
-//				{  
-//					File.Copy(od.FileName, UnityEngine.Application.streamingAssetsPath + "/Temp/temp.png");  
-//				}  
-//				StartCoroutine(GetTexture("file://"+UnityEngine.Application.streamingAssetsPath + "/Temp/temp.png"));  
-			}  
-		}  
-		if (img != null)  
-		{  
-			GUI.DrawTexture(new Rect(0, 20, img.width, img.height), img);  
-		}  
-	}  
+		}
 
-	IEnumerator GetTexture(string url)  
-	{  
-		WWW www = new WWW(url);  
-		yield return www;  
-		if (www.isDone && www.error == null)  
-		{  
-			img = www.texture;  
-			Debug.Log(img.width + "  " + img.height);  
-			byte[] data = img.EncodeToPNG();  
-			File.WriteAllBytes(UnityEngine.Application.streamingAssetsPath + "/Temp/temp.bmp", data);  
-			//File.WriteAllBytes(UnityEngine.Application.streamingAssetsPath + "/Temp/temp.png", data);  
+		IEnumerator GetTexture()  
+		{
+				WWW www = new WWW("file://"+ImgPath);  
+				yield return www;  
+				if (www.isDone && www.error == null)  
+				{  
+						img = www.texture;
+				}  
 		}  
-	}  
 }
