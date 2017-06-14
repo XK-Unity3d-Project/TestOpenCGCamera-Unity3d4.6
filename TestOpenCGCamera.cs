@@ -22,8 +22,12 @@ public class TestOpenCGCamera : MonoBehaviour
 		string ImgPath = "";
 		static TestOpenCGCamera mThis;
 		DeviceHandle mDeviceHandle = IntPtr.Zero;
+		long LastTimeVal;
+		int CameraFrameVal = 60;
 		int CGCamFrameCount;
+		int SnapshotCount;
 		public bool IsPlayCGCam;
+		public bool IsShowCGCamFrame;
 		Texture2D img = null;
 
 		[DllImport("user32")]  
@@ -116,15 +120,34 @@ public class TestOpenCGCamera : MonoBehaviour
 				}
 
 				if (IsPlayCGCam) {
-						if (CGCamFrameCount > 4) {
-								CGCamFrameCount = 0;
+						if (SnapshotCount > 4) {
+								SnapshotCount = 0;
 						}
 
-						if (CGCamFrameCount == 2) {
+						if (SnapshotCount == 2) {
 								Snapshot();
 						}
+						SnapshotCount++;
 				}
-				CGCamFrameCount++;
+
+				if (IsShowCGCamFrame) {
+						DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1, 0, 0, 0, 0));
+						DateTime nowTime = DateTime.Now;
+						long unixTime = (long)Math.Round((nowTime - startTime).TotalMilliseconds, MidpointRounding.AwayFromZero);
+						if (LastTimeVal == 0) {
+								LastTimeVal = unixTime;
+						}
+						else {
+								CGCamFrameCount++;
+								long dTimeVal = unixTime - LastTimeVal;
+								if (dTimeVal >= 1000) {
+										CameraFrameVal = CGCamFrameCount;
+										CGCamFrameCount = 0;
+										LastTimeVal = unixTime;
+										//Console.WriteLine("dTime " + unixTime + ", camZhenLv " + CamZhenLvVal);
+								}
+						}
+				}
 		} 
 
 		public static void OnReceiveFrame(IntPtr pDevice, IntPtr pImageBuffer, ref DeviceFrameInfo pFrInfo, IntPtr lParam)
@@ -186,16 +209,19 @@ public class TestOpenCGCamera : MonoBehaviour
 
 		void OnGUI()
 		{
-				if (!IsPlayCGCam) {
-						return;
+				if (IsPlayCGCam) {
+						if (Time.frameCount % 3 == 0) {
+								StartCoroutine(GetTexture());
+						}
+
+						if (img != null) {
+								GUI.DrawTexture(new Rect(10, 10, img.width, img.height), img);
+						}
 				}
 
-				if (Time.frameCount % 3 == 0) {
-						StartCoroutine(GetTexture());
-				}
-
-				if (img != null) {
-						GUI.DrawTexture(new Rect(10, 10, img.width, img.height), img);
+				if (IsShowCGCamFrame) {
+						GUI.color = Color.green;
+						GUI.Label(new Rect(10f, 270f, 100f, 30), "CameraFps "+CameraFrameVal);
 				}
 		}
 
