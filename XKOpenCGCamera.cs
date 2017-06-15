@@ -17,18 +17,18 @@ using System.Windows.Forms;
 using System.IO;
 using System.Drawing;
 
-public class TestOpenCGCamera : MonoBehaviour
+public class XKOpenCGCamera : MonoBehaviour
 {
 		string FilePath;
 		string ImgPath = "";
-		static TestOpenCGCamera mThis;
+		static XKOpenCGCamera mThis;
 		DeviceHandle mDeviceHandle = IntPtr.Zero;
 		long LastTimeVal;
 		int CameraFrameVal = 60;
 		int CGCamFrameCount;
 		public bool IsPlayCGCam;
 		public bool IsShowCGCamFrame;
-		public Texture2D mImg = null;
+		Texture2D mImg = null;
 		const int CGCameraWith = 320;
 		const int CGCameraHeight = 240;
 		byte[] mBufHandle;
