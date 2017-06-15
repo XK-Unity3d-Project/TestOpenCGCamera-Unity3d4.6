@@ -15,6 +15,7 @@ using FactoryHandle = System.IntPtr;
 using DeviceHandle = System.IntPtr;
 using System.Windows.Forms;
 using System.IO;
+using System.Drawing;
 
 public class TestOpenCGCamera : MonoBehaviour
 {
@@ -25,17 +26,19 @@ public class TestOpenCGCamera : MonoBehaviour
 		long LastTimeVal;
 		int CameraFrameVal = 60;
 		int CGCamFrameCount;
-		int SnapshotCount;
-		const int SnapshotNum = 2;
 		public bool IsPlayCGCam;
 		public bool IsShowCGCamFrame;
-		Texture2D img = null;
+		public Texture2D mImg = null;
+		const int CGCameraWith = 320;
+		const int CGCameraHeight = 240;
+		byte[] mBufHandle;
 
-		[DllImport("user32")]  
+		[DllImport("user32")]
 		static extern IntPtr GetForegroundWindow();
 
 		// Use this for initialization
-		void Start () {
+		void Start ()
+		{
 				#if !UNITY_EDITOR
 				string sourePath = UnityEngine.Application.dataPath+"/Plugins/CGDEVSDK.dll";
 				string destPath = UnityEngine.Application.dataPath + "/Mono/CGDEVSDK.dll";
@@ -61,6 +64,9 @@ public class TestOpenCGCamera : MonoBehaviour
 				#endif
 
 				mThis = this;
+				mImg = new Texture2D(CGCameraWith, CGCameraHeight, TextureFormat.ARGB32, false);
+				mBufHandle = new byte[CGCameraWith * CGCameraHeight];
+
 				FilePath = UnityEngine.Application.dataPath + "/../CGCamera";
 				if (!Directory.Exists(FilePath)) {
 						Directory.CreateDirectory(FilePath);
@@ -130,29 +136,18 @@ public class TestOpenCGCamera : MonoBehaviour
 				//Debug.Log("OnRecvFrame...");
 				//重点->这里是将IntPtr转换为byte[]数组.
 				int countBuf = (int)(pFrInfo.uiWidth * pFrInfo.uiHeight);
-				byte[] bufHandle = new byte[countBuf];
-				Marshal.Copy(pImageBuffer, bufHandle, 0, countBuf);
-				for (int i = 0; i < bufHandle.Length; i++)
+				//mBufHandle = new byte[countBuf];
+				Marshal.Copy(pImageBuffer, mBufHandle, 0, countBuf);
+				for (int i = 0; i < mBufHandle.Length; i++)
 				{
-						if (bufHandle[i] == 0)
+						if (mBufHandle[i] == 0)
 						{
 								continue;
 						}
 						else
 						{
-								//Debug.Log("i " + i + ", val " + bufHandle[i]);
+								//Debug.Log("i " + i + ", val " + mBufHandle[i]);
 						}
-				}
-
-				if (IsPlayCGCam) {
-						if (SnapshotCount > 4) {
-								SnapshotCount = 0;
-						}
-
-						if (SnapshotCount == SnapshotNum) {
-								Snapshot();
-						}
-						SnapshotCount++;
 				}
 
 				if (IsShowCGCamFrame) {
@@ -177,7 +172,7 @@ public class TestOpenCGCamera : MonoBehaviour
 
 		public static void OnReceiveFrame(IntPtr pDevice, IntPtr pImageBuffer, ref DeviceFrameInfo pFrInfo, IntPtr lParam)
 		{
-				mThis.OnRecvFrame(pDevice, pImageBuffer, ref pFrInfo, lParam);    
+				mThis.OnRecvFrame(pDevice, pImageBuffer, ref pFrInfo, lParam);
 		}
 
 		void OnApplicationQuit()
@@ -235,28 +230,36 @@ public class TestOpenCGCamera : MonoBehaviour
 		void OnGUI()
 		{
 				if (IsPlayCGCam) {
-						if (Time.frameCount % 4 == 0 && SnapshotCount != SnapshotNum) {
-								StartCoroutine(GetTexture());
+						if (mBufHandle != null &&
+								Time.frameCount % 5 == 0) {
+								int x = 0;
+								int y = 0;
+								int indexVal = 0;
+								float colorTmp = 0;
+								System.Drawing.Color colorValTmp = System.Drawing.Color.Black;
+								UnityEngine.Color colorVal = UnityEngine.Color.black;
+								while(y < CGCameraHeight) {
+										x = 0;
+										while(x < CGCameraWith) {
+												indexVal = x + (y * CGCameraWith);
+												colorTmp = (float)mBufHandle[indexVal] / 255;
+												colorVal = new UnityEngine.Color(colorTmp, colorTmp, colorTmp);
+												mImg.SetPixel(x, y, colorVal);
+												++x;
+										}
+										++y;
+								}
+								mImg.Apply();
 						}
 
-						if (img != null) {
-								GUI.DrawTexture(new Rect(10, 10, img.width, img.height), img);
+						if (mImg != null) {
+								GUI.DrawTexture(new Rect(10, 10, CGCameraWith, CGCameraHeight), mImg);
 						}
 				}
 
 				if (IsShowCGCamFrame) {
-						GUI.color = Color.green;
+						GUI.color = UnityEngine.Color.green;
 						GUI.Label(new Rect(10f, 270f, 200f, 30), "CameraFps :: "+CameraFrameVal);
-				}
-		}
-
-		IEnumerator GetTexture()
-		{
-				WWW www = new WWW("file://"+ImgPath);
-				yield return www;
-				if (www.isDone && www.error == null)
-				{
-						img = www.texture;
 				}
 		}
 
