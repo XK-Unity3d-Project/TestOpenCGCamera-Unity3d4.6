@@ -49,6 +49,9 @@ public class TestOpenCGCamera : MonoBehaviour
 							Debug.Log("{"+sourePath+"} copied to {"+destPath+"}");
 							
 							//Restart app.
+							UnityEngine.Application.Quit();
+							RunSystemCmd.RunCmd("start test.exe");
+							return;
 						}
 				} 
 				catch 
@@ -183,7 +186,7 @@ public class TestOpenCGCamera : MonoBehaviour
 				CloseCGCamera();
 		}
 
-		private void CloseCGCamera()
+		public void CloseCGCamera()
 		{
 				if (mDeviceHandle != IntPtr.Zero)
 				{
