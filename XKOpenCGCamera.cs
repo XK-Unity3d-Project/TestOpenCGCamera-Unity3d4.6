@@ -21,7 +21,6 @@ public class XKOpenCGCamera : MonoBehaviour
 {
 		string FilePath;
 		string ImgPath = "";
-		static XKOpenCGCamera mThis;
 		DeviceHandle mDeviceHandle = IntPtr.Zero;
 		long LastTimeVal;
 		int CameraFrameVal = 60;
@@ -32,6 +31,11 @@ public class XKOpenCGCamera : MonoBehaviour
 		const int CGCameraWith = 320;
 		const int CGCameraHeight = 240;
 		byte[] mBufHandle;
+		static XKOpenCGCamera _Instance;
+		public static XKOpenCGCamera GetInstance()
+		{
+				return _Instance;
+		}
 
 		[DllImport("user32")]
 		static extern IntPtr GetForegroundWindow();
@@ -63,7 +67,7 @@ public class XKOpenCGCamera : MonoBehaviour
 				}
 				#endif
 
-				mThis = this;
+				_Instance = this;
 				mImg = new Texture2D(CGCameraWith, CGCameraHeight, TextureFormat.ARGB32, false);
 				mBufHandle = new byte[CGCameraWith * CGCameraHeight];
 
@@ -172,7 +176,10 @@ public class XKOpenCGCamera : MonoBehaviour
 
 		public static void OnReceiveFrame(IntPtr pDevice, IntPtr pImageBuffer, ref DeviceFrameInfo pFrInfo, IntPtr lParam)
 		{
-				mThis.OnRecvFrame(pDevice, pImageBuffer, ref pFrInfo, lParam);
+				if (XKOpenCGCamera.GetInstance() == null) {
+						return;
+				}
+				XKOpenCGCamera.GetInstance().OnRecvFrame(pDevice, pImageBuffer, ref pFrInfo, lParam);
 		}
 
 		void OnApplicationQuit()
