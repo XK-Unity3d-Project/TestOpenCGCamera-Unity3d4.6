@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Runtime.InteropServices.ComTypes;
 
-using DirectShowLib;
+//using DirectShowLib;
 
 namespace OpenCameraCSByOpenCV
 {
@@ -20,12 +20,12 @@ namespace OpenCameraCSByOpenCV
     };
 
     //typedef void (__stdcall ashPINTPROC)(Point);
-    class CSampleGrabberCB : ISampleGrabberCB
+    class CSampleGrabberCB
     {
         #region Member variables
         /// <summary> graph builder interface. </summary>
-        private IFilterGraph2 m_FilterGraph = null;
-        IMediaControl m_mediaCtrl = null;
+//        private IFilterGraph2 m_FilterGraph = null;
+//        IMediaControl m_mediaCtrl = null;
 
         /// <summary> Set by async routine when it captures an image </summary>
         private bool m_bRunning = false;
@@ -42,152 +42,152 @@ namespace OpenCameraCSByOpenCV
         {
             InitFindPlayerPoint();
 
-            DsDevice[] capDevices;
-            // Get the collection of video devices
-            capDevices = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
-            if (iDeviceNum + 1 > capDevices.Length)
-            {
-                throw new Exception("No video capture devices found at that index!");
-            }
-            m_CamID = iDeviceNum;
+//            DsDevice[] capDevices;
+//            // Get the collection of video devices
+//            capDevices = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
+//            if (iDeviceNum + 1 > capDevices.Length)
+//            {
+//                throw new Exception("No video capture devices found at that index!");
+//            }
+//            m_CamID = iDeviceNum;
 
 #if CHECK_CAMERA_ID
-            if (!CheckCameraIdInfo(capDevices[iDeviceNum]))
+            if (!CheckCameraIdInfo())
             {
                 return;
             }
 #endif
 
-            try
-            {
+//            try
+//            {
                 // Set up the capture graph
-                SetupGraph(capDevices[iDeviceNum]);
-            }
-            catch
-            {
-                Dispose();
-                throw;
-            }
+                //SetupGraph(capDevices[iDeviceNum]);
+//            }
+//            catch
+//            {
+//                Dispose();
+//                throw;
+//            }
         }
 
         /// <summary> release everything. </summary>
-        public void Dispose()
-        {
-            CloseInterfaces();
-        }
+//        public void Dispose()
+//        {
+//            CloseInterfaces();
+//        }
 
         // Destructor
-        ~CSampleGrabberCB()
-        {
-            CloseInterfaces();
-        }
+//        ~CSampleGrabberCB()
+//        {
+//            CloseInterfaces();
+//        }
 
-        void Msg(string str)
+        public static void Msg(string str)
         {
             MessageBox.Show(str);
         }
 
         /// <summary> capture the next image </summary>
-        public void Start()
-        {
-            if (!m_bRunning)
-            {
-                int hr = m_mediaCtrl.Run();
-                DsError.ThrowExceptionForHR( hr );
-                m_bRunning = true;
-            }
-        }
+//        public void Start()
+//        {
+//            if (!m_bRunning)
+//            {
+//                int hr = m_mediaCtrl.Run();
+//                DsError.ThrowExceptionForHR( hr );
+//                m_bRunning = true;
+//            }
+//        }
 
         // Pause the capture graph.
         // Running the graph takes up a lot of resources.  Pause it when it
         // isn't needed.
-        public void Pause()
-        {
-            if (m_bRunning)
-            {
-                int hr = m_mediaCtrl.Pause();
-                DsError.ThrowExceptionForHR( hr );
-                m_bRunning = false;
-            }
-        }
+//        public void Pause()
+//        {
+//            if (m_bRunning)
+//            {
+//                int hr = m_mediaCtrl.Pause();
+//                DsError.ThrowExceptionForHR( hr );
+//                m_bRunning = false;
+//            }
+//        }
 
         /// <summary> build the capture graph for grabber. </summary>
-        private void SetupGraph(DsDevice dev)
-        {
-            int hr = -1;
-            ISampleGrabber sampGrabber = null;
-            IBaseFilter baseGrabFlt = null;
-            IBaseFilter capFilter = null;
-            IBaseFilter muxFilter = null;
-            IFileSinkFilter fileWriterFilter = null;
-            ICaptureGraphBuilder2 capGraph = null;
+//        private void SetupGraph(DsDevice dev)
+//        {
+//            int hr = -1;
+//            ISampleGrabber sampGrabber = null;
+//            IBaseFilter baseGrabFlt = null;
+//            IBaseFilter capFilter = null;
+//            IBaseFilter muxFilter = null;
+//            IFileSinkFilter fileWriterFilter = null;
+//            ICaptureGraphBuilder2 capGraph = null;
+//
+//            // Get the graphbuilder object
+//            m_FilterGraph = new FilterGraph() as IFilterGraph2;
+//            m_mediaCtrl = m_FilterGraph as IMediaControl;
+//            try
+//            {
+//                // Get the ICaptureGraphBuilder2
+//                capGraph = (ICaptureGraphBuilder2) new CaptureGraphBuilder2();
+//
+//                // Get the SampleGrabber interface
+//                sampGrabber = (ISampleGrabber) new SampleGrabber();
+//
+//                // Start building the graph
+//                hr = capGraph.SetFiltergraph( m_FilterGraph );
+//                DsError.ThrowExceptionForHR( hr );
+//
+//                // Add the video device
+//                hr = m_FilterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
+//                DsError.ThrowExceptionForHR( hr );
+//
+//                baseGrabFlt = (IBaseFilter) sampGrabber;
+////                ConfigureSampleGrabber(sampGrabber);
+//
+//                // Add the frame grabber to the graph
+//                hr = m_FilterGraph.AddFilter( baseGrabFlt, "Ds.NET Grabber" );
+//                DsError.ThrowExceptionForHR( hr );
+//
+//                // Connect everything together
+//                //开始渲染采集器的图像,但是不打开渲染窗口"ActiveMovie".
+//                hr = capGraph.RenderStream(PinCategory.Capture, MediaType.Video, capFilter, null, baseGrabFlt);
+//                //开始渲染采集器的图像,并且打开渲染窗口"ActiveMovie".
+//                //hr = capGraph.RenderStream(PinCategory.Capture, MediaType.Video, capFilter, baseGrabFlt, muxFilter);
+//                DsError.ThrowExceptionForHR(hr);
+//
+//                // Now that sizes are fixed, store the sizes
+////                SaveSizeInfo(sampGrabber);
+//            }
+//            finally
+//            {
+//                if (fileWriterFilter != null)
+//                {
+//                    Marshal.ReleaseComObject(fileWriterFilter);
+//                    fileWriterFilter = null;
+//                }
+//                if (muxFilter != null)
+//                {
+//                    Marshal.ReleaseComObject(muxFilter);
+//                    muxFilter = null;
+//                }
+//                if (capFilter != null)
+//                {
+//                    Marshal.ReleaseComObject(capFilter);
+//                    capFilter = null;
+//                }
+//                if (sampGrabber != null)
+//                {
+//                    Marshal.ReleaseComObject(sampGrabber);
+//                    sampGrabber = null;
+//                }
+//            }
+//        }
 
-            // Get the graphbuilder object
-            m_FilterGraph = new FilterGraph() as IFilterGraph2;
-            m_mediaCtrl = m_FilterGraph as IMediaControl;
-            try
-            {
-                // Get the ICaptureGraphBuilder2
-                capGraph = (ICaptureGraphBuilder2) new CaptureGraphBuilder2();
-
-                // Get the SampleGrabber interface
-                sampGrabber = (ISampleGrabber) new SampleGrabber();
-
-                // Start building the graph
-                hr = capGraph.SetFiltergraph( m_FilterGraph );
-                DsError.ThrowExceptionForHR( hr );
-
-                // Add the video device
-                hr = m_FilterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
-                DsError.ThrowExceptionForHR( hr );
-
-                baseGrabFlt = (IBaseFilter) sampGrabber;
-                ConfigureSampleGrabber(sampGrabber);
-
-                // Add the frame grabber to the graph
-                hr = m_FilterGraph.AddFilter( baseGrabFlt, "Ds.NET Grabber" );
-                DsError.ThrowExceptionForHR( hr );
-
-                // Connect everything together
-                //开始渲染采集器的图像,但是不打开渲染窗口"ActiveMovie".
-                hr = capGraph.RenderStream(PinCategory.Capture, MediaType.Video, capFilter, null, baseGrabFlt);
-                //开始渲染采集器的图像,并且打开渲染窗口"ActiveMovie".
-                //hr = capGraph.RenderStream(PinCategory.Capture, MediaType.Video, capFilter, baseGrabFlt, muxFilter);
-                DsError.ThrowExceptionForHR(hr);
-
-                // Now that sizes are fixed, store the sizes
-                SaveSizeInfo(sampGrabber);
-            }
-            finally
-            {
-                if (fileWriterFilter != null)
-                {
-                    Marshal.ReleaseComObject(fileWriterFilter);
-                    fileWriterFilter = null;
-                }
-                if (muxFilter != null)
-                {
-                    Marshal.ReleaseComObject(muxFilter);
-                    muxFilter = null;
-                }
-                if (capFilter != null)
-                {
-                    Marshal.ReleaseComObject(capFilter);
-                    capFilter = null;
-                }
-                if (sampGrabber != null)
-                {
-                    Marshal.ReleaseComObject(sampGrabber);
-                    sampGrabber = null;
-                }
-            }
-        }
-
-        bool CheckCameraIdInfo(DsDevice dev)
+        bool CheckCameraIdInfo()
         {
             bool isFindCamera = false;
             string pDisplayName = "";
-            dev.Mon.GetDisplayName(null, null, out pDisplayName);
+            //dev.Mon.GetDisplayName(null, null, out pDisplayName);
             if (pDisplayName.Contains("vid_04fc") &&
                 (pDisplayName.Contains("pid_fa02") || pDisplayName.Contains("pid_fa09")))
             {
@@ -201,89 +201,89 @@ namespace OpenCameraCSByOpenCV
         }
 
         /// <summary> Read and store the properties </summary>
-        private void SaveSizeInfo(ISampleGrabber sampGrabber)
-        {
-            int hr = -1;
-            // Get the media type from the SampleGrabber
-            AMMediaType media = new AMMediaType();
-            hr = sampGrabber.GetConnectedMediaType( media );
-            DsError.ThrowExceptionForHR( hr );
-
-            if( (media.formatType != FormatType.VideoInfo) || (media.formatPtr == IntPtr.Zero) )
-            {
-                throw new NotSupportedException( "Unknown Grabber Media Format" );
-            }
-
-            // Grab the size info
-            VideoInfoHeader videoInfoHeader = (VideoInfoHeader) Marshal.PtrToStructure( media.formatPtr,
-                                                                         typeof(VideoInfoHeader) );
-            m_videoWidth = videoInfoHeader.BmiHeader.Width;
-            m_videoHeight = videoInfoHeader.BmiHeader.Height;
-            m_stride = m_videoWidth * (videoInfoHeader.BmiHeader.BitCount / 8);
-
-            Width = videoInfoHeader.BmiHeader.Width;
-            Height = videoInfoHeader.BmiHeader.Height;
-            GrayValues = new byte[Width * Height];
-            unwantedPoint = new Point[Width * Height];
-
-            DsUtils.FreeAMMediaType(media);
-            media = null;
-        }
+//        private void SaveSizeInfo(ISampleGrabber sampGrabber)
+//        {
+//            int hr = -1;
+//            // Get the media type from the SampleGrabber
+//            AMMediaType media = new AMMediaType();
+//            hr = sampGrabber.GetConnectedMediaType( media );
+//            DsError.ThrowExceptionForHR( hr );
+//
+//            if( (media.formatType != FormatType.VideoInfo) || (media.formatPtr == IntPtr.Zero) )
+//            {
+//                throw new NotSupportedException( "Unknown Grabber Media Format" );
+//            }
+//
+//            // Grab the size info
+//            VideoInfoHeader videoInfoHeader = (VideoInfoHeader) Marshal.PtrToStructure( media.formatPtr,
+//                                                                         typeof(VideoInfoHeader) );
+//            m_videoWidth = videoInfoHeader.BmiHeader.Width;
+//            m_videoHeight = videoInfoHeader.BmiHeader.Height;
+//            m_stride = m_videoWidth * (videoInfoHeader.BmiHeader.BitCount / 8);
+//
+//            Width = videoInfoHeader.BmiHeader.Width;
+//            Height = videoInfoHeader.BmiHeader.Height;
+//            GrayValues = new byte[Width * Height];
+//            unwantedPoint = new Point[Width * Height];
+//
+//            DsUtils.FreeAMMediaType(media);
+//            media = null;
+//        }
 
         /// <summary> Set the options on the sample grabber </summary>
-        private void ConfigureSampleGrabber(ISampleGrabber sampGrabber)
-        {
-            int hr = -1;
-            AMMediaType media = new AMMediaType();
-
-            // Set the media type to Video/RBG24
-            media.majorType = MediaType.Video;
-            media.subType = MediaSubType.RGB24;
-            media.formatType = FormatType.VideoInfo;
-            hr = sampGrabber.SetMediaType( media );
-            DsError.ThrowExceptionForHR( hr );
-
-            DsUtils.FreeAMMediaType(media);
-            media = null;
-
-            // Configure the samplegrabber callback.
-            hr = sampGrabber.SetCallback( this, 1 );
-            DsError.ThrowExceptionForHR( hr );
-        }
+//        private void ConfigureSampleGrabber(ISampleGrabber sampGrabber)
+//        {
+//            int hr = -1;
+//            AMMediaType media = new AMMediaType();
+//
+//            // Set the media type to Video/RBG24
+//            media.majorType = MediaType.Video;
+//            media.subType = MediaSubType.RGB24;
+//            media.formatType = FormatType.VideoInfo;
+//            hr = sampGrabber.SetMediaType( media );
+//            DsError.ThrowExceptionForHR( hr );
+//
+//            DsUtils.FreeAMMediaType(media);
+//            media = null;
+//
+//            // Configure the samplegrabber callback.
+//            hr = sampGrabber.SetCallback( this, 1 );
+//            DsError.ThrowExceptionForHR( hr );
+//        }
 
         /// <summary> Shut down capture </summary>
-        private void CloseInterfaces()
-        {
-            int hr = -1;
-            try
-            {
-                if( m_mediaCtrl != null )
-                {
-                    // Stop the graph
-                    hr = m_mediaCtrl.Stop();
-                    m_mediaCtrl = null;
-                    m_bRunning = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-
-            if (m_FilterGraph != null)
-            {
-                Marshal.ReleaseComObject(m_FilterGraph);
-                m_FilterGraph = null;
-            }
-            GC.Collect();
-        }
+//        private void CloseInterfaces()
+//        {
+//            int hr = -1;
+//            try
+//            {
+//                if( m_mediaCtrl != null )
+//                {
+//                    // Stop the graph
+//                    hr = m_mediaCtrl.Stop();
+//                    m_mediaCtrl = null;
+//                    m_bRunning = false;
+//                }
+//            }
+//            catch (Exception ex)
+//            {
+//                Console.WriteLine(ex);
+//            }
+//
+//            if (m_FilterGraph != null)
+//            {
+//                Marshal.ReleaseComObject(m_FilterGraph);
+//                m_FilterGraph = null;
+//            }
+//            GC.Collect();
+//        }
 
         /// <summary> sample callback, NOT USED. </summary>
-        int ISampleGrabberCB.SampleCB(double SampleTime, IMediaSample pSample)
-        {
-            Marshal.ReleaseComObject(pSample);
-            return 0;
-        }
+//        int ISampleGrabberCB.SampleCB(double SampleTime, IMediaSample pSample)
+//        {
+//            Marshal.ReleaseComObject(pSample);
+//            return 0;
+//        }
 
         public static int CamZhenLvVal = 30;
 #if CHECK_CAMERA_ZHENLV
@@ -291,7 +291,7 @@ namespace OpenCameraCSByOpenCV
         int FramNum = 0;
 #endif
         /// <summary> buffer callback, COULD BE FROM FOREIGN THREAD. </summary>
-        unsafe int ISampleGrabberCB.BufferCB(double sampleTime, IntPtr pBuffer, int bufferLen)
+        unsafe int BufferCB(double sampleTime, IntPtr pBuffer, int bufferLen)
         {
 #if CHECK_CAMERA_ZHENLV
             //检测采集器的刷新帧率信息.
@@ -569,7 +569,7 @@ namespace OpenCameraCSByOpenCV
         void CallGameChangeJiaoZhunPic()
         {
             //通知游戏更新校准图片信息.
-            Form1.Instance.ChangeJiaoZhunPic((byte)(m_nLed + 1));
+//            Form1.Instance.ChangeJiaoZhunPic((byte)(m_nLed + 1));
         }
 
         void OpenPlayerJiGuangQi()
@@ -580,7 +580,7 @@ namespace OpenCameraCSByOpenCV
         void CallGameUpdateZhunXingZuoBiao(Point pointVal)
         {
             //通知游戏更新准星坐标信息.
-            Form1.Instance.UpdateZhunXingZuoBiao(pointVal);
+//            Form1.Instance.UpdateZhunXingZuoBiao(pointVal);
         }
 
         void UpdateCameraBfferCB(double timeVal)
