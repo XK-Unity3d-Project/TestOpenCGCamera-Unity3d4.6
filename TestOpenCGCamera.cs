@@ -36,6 +36,27 @@ public class TestOpenCGCamera : MonoBehaviour
 
 		// Use this for initialization
 		void Start () {
+				#if !UNITY_EDITOR
+				string sourePath = UnityEngine.Application.dataPath+"/Plugins/CGDEVSDK.dll";
+				string destPath = UnityEngine.Application.dataPath + "/Mono/CGDEVSDK.dll";
+				try
+				{
+						bool isExitDll = File.Exists(destPath);
+						//Debug.Log("isExitDll "+isExitDll);
+						if (!isExitDll) {
+							// Copy the file.
+							File.Copy(sourePath, destPath);
+							Debug.Log("{"+sourePath+"} copied to {"+destPath+"}");
+							
+							//Restart app.
+						}
+				} 
+				catch 
+				{
+						Debug.Log("Double copy is not allowed, which was not expected.");
+				}
+				#endif
+
 				mThis = this;
 				FilePath = UnityEngine.Application.dataPath + "/../CGCamera";
 				if (!Directory.Exists(FilePath)) {
@@ -222,7 +243,7 @@ public class TestOpenCGCamera : MonoBehaviour
 
 				if (IsShowCGCamFrame) {
 						GUI.color = Color.green;
-						GUI.Label(new Rect(10f, 270f, 100f, 30), "CameraFps "+CameraFrameVal);
+						GUI.Label(new Rect(10f, 270f, 200f, 30), "CameraFps :: "+CameraFrameVal);
 				}
 		}
 
