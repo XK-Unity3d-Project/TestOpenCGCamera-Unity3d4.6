@@ -31,8 +31,9 @@ public class XKOpenCGCamera : MonoBehaviour
 		Texture2D mImg = null;
 		const int CGCameraWith = 320;
 		const int CGCameraHeight = 240;
-		int CGCameraBufLen = CGCameraWith * CGCameraHeight;
+		public int CGCameraBufLen = CGCameraWith * CGCameraHeight;
 		byte[] mBufHandle;
+
 		static XKOpenCGCamera _Instance;
 		public static XKOpenCGCamera GetInstance()
 		{
@@ -69,7 +70,7 @@ public class XKOpenCGCamera : MonoBehaviour
 
 				_Instance = this;
 				mImg = new Texture2D(CGCameraWith, CGCameraHeight, TextureFormat.ARGB32, false);
-				mBufHandle = new byte[CGCameraWith * CGCameraHeight];
+				mBufHandle = new byte[CGCameraBufLen];
 
 				FilePath = UnityEngine.Application.dataPath + "/../CGCamera";
 				if (!Directory.Exists(FilePath)) {
@@ -155,11 +156,11 @@ public class XKOpenCGCamera : MonoBehaviour
 								//Debug.Log("i " + i + ", val " + mBufHandle[i]);
 						}
 				}
-
+				
+				DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1, 0, 0, 0, 0));
+				DateTime nowTime = DateTime.Now;
+				long unixTime = (long)Math.Round((nowTime - startTime).TotalMilliseconds, MidpointRounding.AwayFromZero);
 				if (IsShowCGCamFrame) {
-						DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1, 0, 0, 0, 0));
-						DateTime nowTime = DateTime.Now;
-						long unixTime = (long)Math.Round((nowTime - startTime).TotalMilliseconds, MidpointRounding.AwayFromZero);
 						if (LastTimeVal == 0) {
 								LastTimeVal = unixTime;
 						}
@@ -173,6 +174,10 @@ public class XKOpenCGCamera : MonoBehaviour
 										//Console.WriteLine("dTime " + unixTime + ", camZhenLv " + CamZhenLvVal);
 								}
 						}
+				}
+
+				if (CSampleGrabberCB.GetInstance() != null) {
+						CSampleGrabberCB.GetInstance().BufferCB(unixTime, mBufHandle, CGCameraBufLen);
 				}
 		} 
 
@@ -283,6 +288,16 @@ public class XKOpenCGCamera : MonoBehaviour
 				}
 		}
 
+		public int GetCGCameraWith()
+		{
+				return CGCameraWith;
+		}
+
+		public int GetCGCameraHeight()
+		{
+				return CGCameraHeight;
+		}
+
 		//设置CGCamera的通用参数.
 		void SetCGCameraInfo()
 		{
@@ -324,6 +339,11 @@ public class XKOpenCGCamera : MonoBehaviour
 						return;
 				}
 				CGAPI.SetExposureTime(mDeviceHandle, 239);
+		}
+
+		public void OutputMsg(string msg)
+		{
+				Debug.Log(msg);
 		}
 
 		void Update()

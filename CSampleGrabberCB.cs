@@ -1,4 +1,4 @@
-﻿#define CHECK_CAMERA_ZHENLV
+﻿//#define CHECK_CAMERA_ZHENLV
 //#define CHECK_CAMERA_ID
 using System;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ class CSampleGrabberCB
 		//        IMediaControl m_mediaCtrl = null;
 
 		/// <summary> Set by async routine when it captures an image </summary>
-		private bool m_bRunning = false;
+//		private bool m_bRunning = false;
 
 		/// <summary> Dimensions of the image, calculated once in constructor. </summary>
 		private int m_videoWidth;
@@ -293,37 +293,39 @@ class CSampleGrabberCB
 		//            return 0;
 		//        }
 
-		public static int CamZhenLvVal = 30;
-		#if CHECK_CAMERA_ZHENLV
-		long LastTimeVal = 0;
-		int FramNum = 0;
-		#endif
-		/// <summary> buffer callback, COULD BE FROM FOREIGN THREAD. </summary>
-		int BufferCB(double sampleTime, byte[] pBuffer, int bufferLen)
-		{
-				#if CHECK_CAMERA_ZHENLV
-				//检测采集器的刷新帧率信息.
-				DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1, 0, 0, 0, 0));
-				DateTime nowTime = DateTime.Now;
-				long unixTime = (long)Math.Round((nowTime - startTime).TotalMilliseconds, MidpointRounding.AwayFromZero);
-				if (LastTimeVal == 0) {
-						LastTimeVal = unixTime;
-				}
-				else {
-						FramNum++;
-						long dTimeVal = unixTime - LastTimeVal;
-						if (dTimeVal >= 1000) {
-								CamZhenLvVal = FramNum;
-								FramNum = 0;
-								LastTimeVal = unixTime;
-								//Console.WriteLine("dTime " + unixTime + ", camZhenLv " + CamZhenLvVal);
-						}
-				}
-				#endif
+//		public static int CamZhenLvVal = 30;
+//		#if CHECK_CAMERA_ZHENLV
+//		long LastTimeVal = 0;
+//		int FramNum = 0;
+//		#endif
 
-				UpdateCameraBfferCB(sampleTime);
+		//pBuffer -> 图像的灰度值.
+		/// <summary> buffer callback, COULD BE FROM FOREIGN THREAD. </summary>
+		public void BufferCB(long sampleTime, byte[] pBuffer, int bufferLen)
+		{
+//				#if CHECK_CAMERA_ZHENLV
+//				//检测采集器的刷新帧率信息.
+//				DateTime startTime = TimeZone.CurrentTimeZone.ToLocalTime(new System.DateTime(1970, 1, 1, 0, 0, 0, 0));
+//				DateTime nowTime = DateTime.Now;
+//				long unixTime = (long)Math.Round((nowTime - startTime).TotalMilliseconds, MidpointRounding.AwayFromZero);
+//				if (LastTimeVal == 0) {
+//						LastTimeVal = unixTime;
+//				}
+//				else {
+//						FramNum++;
+//						long dTimeVal = unixTime - LastTimeVal;
+//						if (dTimeVal >= 1000) {
+//								CamZhenLvVal = FramNum;
+//								FramNum = 0;
+//								LastTimeVal = unixTime;
+//								//Console.WriteLine("dTime " + unixTime + ", camZhenLv " + CamZhenLvVal);
+//						}
+//				}
+//				#endif
+
+				UpdateWindowRect(sampleTime);
 				CheckBufferCB(pBuffer, bufferLen);
-				return 0;
+				return;
 		}
 
 		#region Find Player Cross Point
@@ -335,8 +337,8 @@ class CSampleGrabberCB
 		//显示器的大小信息.
 		int lClientWidth;
 		int lClientHeight;
-		//定义转化为灰度后需要存储的数组. 
-		byte[] GrayValues;
+		//定义转化为灰度后需要存储的数组.
+//		byte[] GrayValues;
 		int m_nSmoothingCount;
 
 		float m_fMark;
@@ -427,12 +429,16 @@ class CSampleGrabberCB
 						GrayThreshold = (byte)rv;
 				}
 
-				Width = 0;
-				Height = 0;
+				Width = XKOpenCGCamera.GetInstance().GetCGCameraWith();
+				Height = XKOpenCGCamera.GetInstance().GetCGCameraHeight();
 				lClientWidth = GetSystemMetrics(SM_CXSCREEN);
 				lClientHeight = GetSystemMetrics(SM_CYSCREEN);
+				m_curMousePoint = Point.Empty;
 				m_curMousePoint.X = -1;
 				m_curMousePoint.Y = -1;
+
+				unwantedPoint = new Point[XKOpenCGCamera.GetInstance().CGCameraBufLen];
+//				GrayValues = new byte[XKOpenCGCamera.GetInstance().CGCameraBufLen];
 
 				ResetMP4Info();
 				m_warp = new Warper();
@@ -500,24 +506,27 @@ class CSampleGrabberCB
 				m_nLed = 0;
 		}
 
+		//pBuffer -> 图像灰度值.
 		void getUnwantedPoint(byte[] pBuffer)
 		{
-				byte fGray = 0;
+//				byte fGray = 0;
 				unwantedPointNum = 0;
 				for (int y = 0; y < Height; y++)
 				{
-						for (int x = 0; x < Width * 3; x += 3)
+//						for (int x = 0; x < Width * 3; x += 3)
+						for (int x = 0; x < Width; x++)
 						{
 								//Gray = (R*299 + G*587 + B*114 + 500) / 1000; //整数运算效率高于浮点运算.
 								/*fGray = ( float )( 299 * pBuffer[ x + 2 + Width * 3 * y ] + 
-                            587 * pBuffer[ x + 1 + Width * 3 * y ] +				
-                            114 * pBuffer[ x + 0 + Width * 3 * y ] ) / 1000.0;*/
+				                            587 * pBuffer[ x + 1 + Width * 3 * y ] +				
+				                            114 * pBuffer[ x + 0 + Width * 3 * y ] ) / 1000.0;*/
 								//Gray = (R*19595 + G*38469 + B*7472) >> 16; //移位法效率更高.
-								fGray = (byte)((pBuffer[x + 2 + Width * 3 * y] * 19595
-										+ pBuffer[x + 1 + Width * 3 * y] * 38469
-										+ pBuffer[x + 0 + Width * 3 * y] * 7472) >> 16);
+//								fGray = (byte)((pBuffer[x + 2 + Width * 3 * y] * 19595
+//													+ pBuffer[x + 1 + Width * 3 * y] * 38469
+//													+ pBuffer[x + 0 + Width * 3 * y] * 7472) >> 16);
 
-								if (fGray > /*m_nGrayThreshold*/200)
+//								fGray = pBuffer[x + (y * Width)];
+								if (pBuffer[x + (y * Width)] > /*m_nGrayThreshold*/200) 
 								{
 										//记录干扰光源坐标信息.
 										unwantedPoint[unwantedPointNum].X = x;
@@ -530,23 +539,19 @@ class CSampleGrabberCB
 
 		void subUnWantedPoint(byte[] pBuffer, int buferSize)
 		{
-				if (unwantedPointNum == 0)
-				{
-						return;
-				}
-
 				for (int index = 0; index < unwantedPointNum; index++)
 				{
 						int x = unwantedPoint[index].X;
 						int y = unwantedPoint[index].Y;
-						if ((x + 2 + Width * y * 3) >= buferSize)
-						{
+//						if ((x + 2 + Width * y * 3) >= buferSize) {
+						if (x + (Width * y) >= buferSize) {
 								return;
 						}
 						//将RGB设置为零,起到屏蔽干扰光源的目的.
-						pBuffer[x + 2 + Width * y * 3] = 0;
-						pBuffer[x + 1 + Width * y * 3] = 0;
-						pBuffer[x + 0 + Width * y * 3] = 0;
+//						pBuffer[x + 2 + Width * y * 3] = 0;
+//						pBuffer[x + 1 + Width * y * 3] = 0;
+//						pBuffer[x + 0 + Width * y * 3] = 0;
+						pBuffer[x + (Width * y)] = 0;
 				}
 		}
 
@@ -577,7 +582,7 @@ class CSampleGrabberCB
 		void CallGameChangeJiaoZhunPic()
 		{
 				//通知游戏更新校准图片信息.
-				//            Form1.Instance.ChangeJiaoZhunPic((byte)(m_nLed + 1));
+//            Form1.Instance.ChangeJiaoZhunPic((byte)(m_nLed + 1));
 		}
 
 		void OpenPlayerJiGuangQi()
@@ -591,11 +596,10 @@ class CSampleGrabberCB
 				//            Form1.Instance.UpdateZhunXingZuoBiao(pointVal);
 		}
 
-		void UpdateCameraBfferCB(double timeVal)
+		void UpdateWindowRect(long timeVal)
 		{
 				//每隔一定时间更新一次数据信息.
-				if (timeVal - TimeUpdateLast < 3)
-				{
+				if (timeVal - TimeUpdateLast < 3000) {
 						return;
 				}
 				TimeUpdateLast = timeVal;
@@ -607,14 +611,15 @@ class CSampleGrabberCB
 				//CallGameUpdateZhunXingZuoBiao(new Point(getFrameNum, getFrameNum + 2)); //test.
 				if (m_mode == MODE.MODE_MOTION)
 				{
-						if (getFrameNum >= 625)
+						if (getFrameNum >= 3333)
 						{
 								getFrameNum = 0;
 						}
 
-						//625 = 10000 / (1000 / 60); -> 每隔10秒获取一次干扰光源信息,60是采集器的刷新帧率.
-						if (getFrameNum % 625 == 0)
+						//3333 = 10000 / (1000 / 320); -> 每隔10秒获取一次干扰光源信息,320是采集器的刷新帧率.
+						if (getFrameNum % 3333 == 0)
 						{
+								//XKOpenCGCamera.GetInstance().OutputMsg("getUnwantedPoint...");
 								getUnwantedPoint(pBuffer);
 						}
 						getFrameNum++;
@@ -631,6 +636,7 @@ class CSampleGrabberCB
 
 				if (unwantedPointNum > 0)
 				{
+						//XKOpenCGCamera.GetInstance().OutputMsg("subUnWantedPoint -> pointNum "+unwantedPointNum);
 						subUnWantedPoint(pBuffer, bufferLen);
 				}
 
@@ -682,6 +688,7 @@ class CSampleGrabberCB
 								CallGameUpdateZhunXingZuoBiao(m_curMousePoint);
 						}
 						break;
+
 				default:
 						break;
 				}
@@ -761,61 +768,83 @@ class CSampleGrabberCB
 				int nMax_y = 0;
 				float nMaxx1 = 0.0f;
 				float nMaxy1 = 0.0f;
-				byte fGray = 0;
+//				byte fGray = 0;
 
 				float ax = 0.0f;
 				float ay = 0.0f;
 				float b = 0.0f;
-				int indexVal = 0;
+//				int indexVal = 0;
 				bool bIsMouseInClient = false;
 
-				for (int y = 0; y < Height; y++)
-				{
-						for (int x = 0; x < Width * 3; x += 3)
-						{
-								//Gray = (R*299 + G*587 + B*114 + 500) / 1000; //整数运算效率高于浮点运算.
-								/*fGray = ( float )( 299 * pBuffer[ x + 2 + Width * 3 * y ] + 
-                            587 * pBuffer[ x + 1 + Width * 3 * y ] +				
-                            114 * pBuffer[ x + 0 + Width * 3 * y ] ) / 1000.0;*/
-								//Gray = (R*19595 + G*38469 + B*7472) >> 16; //移位法效率更高.
-								fGray = (byte)((pBuffer[x + 2 + Width * 3 * y] * 19595
-										+ pBuffer[x + 1 + Width * 3 * y] * 38469
-										+ pBuffer[x + 0 + Width * 3 * y] * 7472) >> 16);
+//				for (int y = 0; y < Height; y++)
+//				{
+////						for (int x = 0; x < Width * 3; x += 3)
+//						for (int x = 0; x < Width; x++)
+//						{
+//								//Gray = (R*299 + G*587 + B*114 + 500) / 1000; //整数运算效率高于浮点运算.
+//								/*fGray = ( float )( 299 * pBuffer[ x + 2 + Width * 3 * y ] + 
+//					                            587 * pBuffer[ x + 1 + Width * 3 * y ] +				
+//					                            114 * pBuffer[ x + 0 + Width * 3 * y ] ) / 1000.0;*/
+//								//Gray = (R*19595 + G*38469 + B*7472) >> 16; //移位法效率更高.
+////								fGray = (byte)((pBuffer[x + 2 + Width * 3 * y] * 19595
+////													+ pBuffer[x + 1 + Width * 3 * y] * 38469
+////													+ pBuffer[x + 0 + Width * 3 * y] * 7472) >> 16);
+//
+//								fGray = pBuffer[x + (y * Width)];
+//								if (fGray > GrayThreshold)
+//								{
+//										fGray = 255;
+//										bIsMouseInClient = true;
+//								}
+//								else
+//								{
+//										fGray = 0;
+//								}
+//
+//								GrayValues[indexVal] = fGray;
+//								indexVal++;
+//						}
+//				}
 
-								if (fGray > GrayThreshold)
-								{
-										fGray = 255;
+//				if (!bIsMouseInClient)
+//				{
+//						return;
+//				}
+
+//				indexVal = 0;
+//				for (int j = 0; j < Height; j++)
+//				{
+//						for (int i = 0; i < Width; i++)
+//						{
+//								if (GrayValues[indexVal] > GrayThreshold)
+//								{
+//										//这里是重点,暂时不知道为什么要这样计算.
+//										ax += GrayValues[indexVal] * i;
+//										ay += GrayValues[indexVal] * j;
+//										b += GrayValues[indexVal];
+//								}
+//								indexVal++;
+//						}
+//				}
+
+				float maxGray = 255;
+				for (int j = 0; j < Height; j++)
+				{
+						for (int i = 0; i < Width; i++)
+						{
+								if (pBuffer[i + (j * Width)] > GrayThreshold) {
+										//这里是重点,暂时不知道为什么要这样计算.
+										ax += maxGray * i;
+										ay += maxGray * j;
+										b += maxGray;
 										bIsMouseInClient = true;
 								}
-								else
-								{
-										fGray = 0;
-								}
-
-								GrayValues[indexVal] = fGray;
-								indexVal++;
 						}
 				}
 
 				if (!bIsMouseInClient)
 				{
 						return;
-				}
-
-				indexVal = 0;
-				for (int j = 0; j < Height; j++)
-				{
-						for (int i = 0; i < Width; i++)
-						{
-								if (GrayValues[indexVal] > 0)
-								{
-										//这里是重点,暂时不知道为什么要这样计算.
-										ax += GrayValues[indexVal] * i;
-										ay += GrayValues[indexVal] * j;
-										b += GrayValues[indexVal];
-								}
-								indexVal++;
-						}
 				}
 
 				if (b != 0)
@@ -862,30 +891,32 @@ class CSampleGrabberCB
 				//}
 		}
 
+		//灰度图的阀值.
 		byte GrayThreshold = 120;
 		Point GetPointToConvert(byte[] pBuffer)
 		{
-				byte fGray = 0;
+//				byte fGray = 0;
 				bool isStopCheck = false;
 				Point pointVal = Point.Empty;
 				for (int y = 0; y < Height; y++)
 				{
-						for (int x = 0; x < Width * 3; x += 3)
+//						for (int x = 0; x < Width * 3; x += 3)
+						for (int x = 0; x < Width; x++)
 						{
 								//Gray = (R*299 + G*587 + B*114 + 500) / 1000; //整数运算效率高于浮点运算.
 								/*fGray = ( float )( 299 * pBuffer[ x + 2 + Width * 3 * y ] + 
-                            587 * pBuffer[ x + 1 + Width * 3 * y ] +				
-                            114 * pBuffer[ x + 0 + Width * 3 * y ] ) / 1000.0;*/
+				                            587 * pBuffer[ x + 1 + Width * 3 * y ] +				
+				                            114 * pBuffer[ x + 0 + Width * 3 * y ] ) / 1000.0;*/
 								//Gray = (R*19595 + G*38469 + B*7472) >> 16; //移位法效率更高.
-								fGray = (byte)((pBuffer[x + 2 + Width * 3 * y] * 19595
-										+ pBuffer[x + 1 + Width * 3 * y] * 38469
-										+ pBuffer[x + 0 + Width * 3 * y] * 7472) >> 16);
+//								fGray = (byte)((pBuffer[x + 2 + Width * 3 * y] * 19595
+//										+ pBuffer[x + 1 + Width * 3 * y] * 38469
+//										+ pBuffer[x + 0 + Width * 3 * y] * 7472) >> 16);
 								//找到激光器亮点.
-								if (fGray > GrayThreshold)
-										//if (fGray > GrayThreshold || fGray > 0) //test
+								if (pBuffer[x + (y * Width)] > GrayThreshold)
+								//if (fGray > GrayThreshold || fGray > 0) //test
 								{
 										isStopCheck = true;
-										pointVal.X = x / 3;
+										pointVal.X = x;
 										pointVal.Y = y;
 										m_nLed++;
 										break;
