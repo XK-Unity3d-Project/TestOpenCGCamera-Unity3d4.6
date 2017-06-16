@@ -436,6 +436,8 @@ class CSampleGrabberCB
 				m_curMousePoint = Point.Empty;
 				m_curMousePoint.X = -1;
 				m_curMousePoint.Y = -1;
+				MinPoint = Point.Empty;
+				MaxPoint = Point.Empty;
 
 				unwantedPoint = new Point[XKOpenCGCamera.GetInstance().CGCameraBufLen];
 //				GrayValues = new byte[XKOpenCGCamera.GetInstance().CGCameraBufLen];
@@ -468,6 +470,7 @@ class CSampleGrabberCB
 				byte[] cvSrcBt = new byte[4];
 				string szwcKey = "";
 				string strTitle = "Camera" + m_CamID;
+				bool isCheckMP4Info = true;
 
 				for (int i = 0; i < 4; i++)
 				{
@@ -481,9 +484,14 @@ class CSampleGrabberCB
 
 						if (rv != 1 || m_p4[i].X > m_Rect.Right - m_Rect.Left || m_p4[i].Y > m_Rect.Bottom - m_Rect.Top)
 						{
+								isCheckMP4Info = false;
 								ResetMP4Info();
 								break;
 						}
+				}
+
+				if (isCheckMP4Info) {
+						CheckMP4Info();
 				}
 		}
 
@@ -497,6 +505,33 @@ class CSampleGrabberCB
 				m_p4[2].Y = 60;
 				m_p4[3].X = 20;
 				m_p4[3].Y = 60;
+				CheckMP4Info();
+		}
+
+		void CheckMP4Info()
+		{
+				MinPoint.X = int.MaxValue;
+				MinPoint.Y = int.MaxValue;
+				MaxPoint.X = int.MinValue;
+				MaxPoint.Y = int.MinValue;
+				for (int i = 0; i < 4; i++) {
+						if (MinPoint.X > m_p4[i].X) {
+								MinPoint.X = m_p4[i].X;
+						}
+
+						if (MinPoint.Y > m_p4[i].Y) {
+								MinPoint.Y = m_p4[i].Y;
+						}
+
+						if (MaxPoint.X < m_p4[i].X) {
+								MaxPoint.X = m_p4[i].X;
+						}
+
+						if (MaxPoint.Y < m_p4[i].Y) {
+								MaxPoint.Y = m_p4[i].Y;
+						}
+				}
+//				XKOpenCGCamera.GetInstance().OutputMsg("MaxPoint "+MaxPoint+", MinPoint "+MinPoint);
 		}
 
 		void ResetRectify()
@@ -658,6 +693,9 @@ class CSampleGrabberCB
 												//m_p4的坐标顺序与光枪校准顺序相反.
 												m_p4[4 - m_nLed].X = pointVal.X;
 												m_p4[4 - m_nLed].Y = pointVal.Y;
+												if (4 - m_nLed == 0) {
+														CheckMP4Info();
+												}
 												m_bRectifyState = false;
 												//添加代码,改变校准图片信息.
 												CallGameChangeJiaoZhunPic();
@@ -695,6 +733,10 @@ class CSampleGrabberCB
 				}
 				return;
 		}
+
+		//有效图像范围的信息.
+		Point MinPoint;
+		Point MaxPoint;
 
 		//设置透视变换类信息.
 		void SetCalibrationInfo()
@@ -829,9 +871,12 @@ class CSampleGrabberCB
 //				}
 
 				float maxGray = 255;
-				for (int j = 0; j < Height; j++)
+//				for (int j = 0; j < Height; j++)
+				//优化算法->在有效图像范围内查找光点.
+				for (int j = MinPoint.Y; j < MaxPoint.Y; j++)
 				{
-						for (int i = 0; i < Width; i++)
+//						for (int i = 0; i < Width; i++)
+						for (int i = MinPoint.X; i < MaxPoint.X; i++)
 						{
 								if (pBuffer[i + (j * Width)] > GrayThreshold) {
 										//这里是重点,暂时不知道为什么要这样计算.
