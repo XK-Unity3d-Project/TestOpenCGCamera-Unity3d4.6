@@ -16,6 +16,7 @@ using DeviceHandle = System.IntPtr;
 using System.Windows.Forms;
 using System.IO;
 using System.Drawing;
+using UnityEngine.SceneManagement;
 
 public class XKOpenCGCamera : MonoBehaviour
 {
@@ -30,6 +31,7 @@ public class XKOpenCGCamera : MonoBehaviour
 		Texture2D mImg = null;
 		const int CGCameraWith = 320;
 		const int CGCameraHeight = 240;
+		int CGCameraBufLen = CGCameraWith * CGCameraHeight;
 		byte[] mBufHandle;
 		static XKOpenCGCamera _Instance;
 		public static XKOpenCGCamera GetInstance()
@@ -86,6 +88,8 @@ public class XKOpenCGCamera : MonoBehaviour
 						Debug.Log("Device start...");
 						CGAPI.DeviceStart(mDeviceHandle);
 						SetCGCameraInfo();
+
+						//CSampleGrabberCB.GetInstance();
 				}
 		}
 
@@ -248,7 +252,19 @@ public class XKOpenCGCamera : MonoBehaviour
 								while(y < CGCameraHeight) {
 										x = 0;
 										while(x < CGCameraWith) {
-												indexVal = x + (y * CGCameraWith);
+												/**
+												 *	Unity图片像素顺序.
+												 *	2		3
+												 *	0		1 
+												 *
+												 *	CGCamera图片像素顺序.
+												 *	0		1
+												 *	2		3
+												 */
+												//indexVal = x + (y * CGCameraWith);
+												//篡改图片像素顺序.
+												indexVal = (CGCameraWith - x - 1) + (y * CGCameraWith);
+												indexVal = CGCameraBufLen - indexVal - 1;
 												colorTmp = (float)mBufHandle[indexVal] / 255;
 												colorVal = new UnityEngine.Color(colorTmp, colorTmp, colorTmp);
 												mImg.SetPixel(x, y, colorVal);
@@ -276,11 +292,13 @@ public class XKOpenCGCamera : MonoBehaviour
 				if (mDeviceHandle == IntPtr.Zero) {
 						return;
 				}
+				Debug.Log("SetCGCameraInfo...");
 				CGAPI.SetMirror(mDeviceHandle, emMirrorDirection.MD_HORIZONTAL, false);
 				CGAPI.SetMirror(mDeviceHandle, emMirrorDirection.MD_VERTICAL, false);
 				CGAPI.SetAnalogGain(mDeviceHandle, 63);
 				CGAPI.SetFrameSpeed(mDeviceHandle, emDeviceFrameSpeed.HIGH_SPEED, false);
 				CGAPI.SetFrameSpeedTune(mDeviceHandle, 0);
+				CGAPI.SaveParameter(mDeviceHandle, emParameterTeam.PARAMETER_TEAM_A);
 
 				//在这里设置摄像头的分辨率.
 //				ResolutionParam param = new ResolutionParam();
@@ -313,6 +331,11 @@ public class XKOpenCGCamera : MonoBehaviour
 
 		void Update()
 		{
+				if (Input.GetKeyUp(KeyCode.K)) {
+						//SceneManager.LoadScene(1);
+						Snapshot();
+				}
+
 				if (Input.GetKeyUp(KeyCode.P)) {
 						SetPlayCGCameraInfo();
 				}
