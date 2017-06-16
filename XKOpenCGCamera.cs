@@ -39,9 +39,6 @@ public class XKOpenCGCamera : MonoBehaviour
 				return _Instance;
 		}
 
-		[DllImport("user32")]
-		static extern IntPtr GetForegroundWindow();
-
 		// Use this for initialization
 		void Start ()
 		{
@@ -89,7 +86,7 @@ public class XKOpenCGCamera : MonoBehaviour
 						CGAPI.DeviceStart(mDeviceHandle);
 						SetCGCameraInfo();
 
-						//CSampleGrabberCB.GetInstance();
+						CSampleGrabberCB.GetInstance();
 				}
 		}
 
@@ -228,8 +225,7 @@ public class XKOpenCGCamera : MonoBehaviour
 								//添加回调函数.
 								//devStatus = CGAPI.DeviceInitEx(mDeviceHandle, rfCallBack, IntPtr.Zero, panelVideo.Handle, true);
 
-								IntPtr renderPtr = GetForegroundWindow();
-								devStatus = CGAPI.DeviceInitEx(mDeviceHandle, rfCallBack, IntPtr.Zero, renderPtr, true);
+								devStatus = CGAPI.DeviceInitEx(mDeviceHandle, rfCallBack, IntPtr.Zero, IntPtr.Zero, true);
 								if (DeviceStatus.STATUS_OK == devStatus)
 								{
 										Debug.Log("Open CGCamera...");
@@ -331,8 +327,8 @@ public class XKOpenCGCamera : MonoBehaviour
 
 		void Update()
 		{
+				//test start
 				if (Input.GetKeyUp(KeyCode.K)) {
-						//SceneManager.LoadScene(1);
 						Snapshot();
 				}
 
@@ -343,5 +339,6 @@ public class XKOpenCGCamera : MonoBehaviour
 				if (Input.GetKeyUp(KeyCode.L)) {
 						SetFindPointCGCameraInfo();
 				}
+				//test end
 		}
 }
