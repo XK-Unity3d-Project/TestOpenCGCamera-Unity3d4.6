@@ -47,6 +47,7 @@ class CSampleGrabberCB
 		/// zero based device index, and some device parms, plus the file name to save to
 		public CSampleGrabberCB(int iDeviceNum)
 		{
+				m_CamID = iDeviceNum;
 				InitFindPlayerPoint();
 
 				//            DsDevice[] capDevices;
@@ -298,7 +299,7 @@ class CSampleGrabberCB
 		int FramNum = 0;
 		#endif
 		/// <summary> buffer callback, COULD BE FROM FOREIGN THREAD. </summary>
-		unsafe int BufferCB(double sampleTime, IntPtr pBuffer, int bufferLen)
+		int BufferCB(double sampleTime, byte[] pBuffer, int bufferLen)
 		{
 				#if CHECK_CAMERA_ZHENLV
 				//检测采集器的刷新帧率信息.
@@ -499,7 +500,7 @@ class CSampleGrabberCB
 				m_nLed = 0;
 		}
 
-		unsafe void getUnwantedPoint(byte* pBuffer)
+		void getUnwantedPoint(byte[] pBuffer)
 		{
 				byte fGray = 0;
 				unwantedPointNum = 0;
@@ -527,7 +528,7 @@ class CSampleGrabberCB
 				}
 		}
 
-		unsafe void subUnWantedPoint(byte* pBuffer, int buferSize)
+		void subUnWantedPoint(byte[] pBuffer, int buferSize)
 		{
 				if (unwantedPointNum == 0)
 				{
@@ -601,7 +602,7 @@ class CSampleGrabberCB
 				GetWindowRect(GetDesktopWindow(), ref m_Rect);
 		}
 
-		unsafe void CheckBufferCB(IntPtr pBuffer, int bufferLen)
+		void CheckBufferCB(byte[] pBuffer, int bufferLen)
 		{
 				//CallGameUpdateZhunXingZuoBiao(new Point(getFrameNum, getFrameNum + 2)); //test.
 				if (m_mode == MODE.MODE_MOTION)
@@ -614,7 +615,7 @@ class CSampleGrabberCB
 						//625 = 10000 / (1000 / 60); -> 每隔10秒获取一次干扰光源信息,60是采集器的刷新帧率.
 						if (getFrameNum % 625 == 0)
 						{
-								getUnwantedPoint((byte*)pBuffer);
+								getUnwantedPoint(pBuffer);
 						}
 						getFrameNum++;
 				}
@@ -622,7 +623,7 @@ class CSampleGrabberCB
 						if (getFrameNum == 0)
 						{
 								getFrameNum = 1;
-								getUnwantedPoint((byte*)pBuffer);
+								getUnwantedPoint(pBuffer);
 								OpenPlayerJiGuangQi();
 								return;
 						}
@@ -630,7 +631,7 @@ class CSampleGrabberCB
 
 				if (unwantedPointNum > 0)
 				{
-						subUnWantedPoint((byte*)pBuffer, bufferLen);
+						subUnWantedPoint(pBuffer, bufferLen);
 				}
 
 				switch (m_mode)
@@ -641,7 +642,7 @@ class CSampleGrabberCB
 								if (m_bRectifyState)
 								{
 										int nled = m_nLed;
-										Point pointVal =  GetPointToConvert((byte*)pBuffer);
+										Point pointVal =  GetPointToConvert(pBuffer);
 										//Con::printf("nled %d, m_nled %d",nled, m_nLed);
 
 										//find pointJiGuangQi
@@ -671,7 +672,7 @@ class CSampleGrabberCB
 						{
 								SetCalibrationInfo();
 						}
-						ConvertGrayBitmapFindPoint((byte*)pBuffer);
+						ConvertGrayBitmapFindPoint(pBuffer);
 
 						if (m_bCurPointModified)
 						{
@@ -754,7 +755,7 @@ class CSampleGrabberCB
 						cvdst[3].X, cvdst[3].Y);
 		}
 
-		unsafe void ConvertGrayBitmapFindPoint(byte* pBuffer)
+		void ConvertGrayBitmapFindPoint(byte[] pBuffer)
 		{
 				int nMax_x = 0;
 				int nMax_y = 0;
@@ -862,7 +863,7 @@ class CSampleGrabberCB
 		}
 
 		byte GrayThreshold = 120;
-		unsafe Point GetPointToConvert(byte* pBuffer)
+		Point GetPointToConvert(byte[] pBuffer)
 		{
 				byte fGray = 0;
 				bool isStopCheck = false;

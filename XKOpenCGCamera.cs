@@ -43,6 +43,7 @@ public class XKOpenCGCamera : MonoBehaviour
 		void Start ()
 		{
 				#if !UNITY_EDITOR
+				//此处代码用于发布版里,动态复制dll到指定目录,方便游戏的发布维护.
 				string sourePath = UnityEngine.Application.dataPath+"/Plugins/CGDEVSDK.dll";
 				string destPath = UnityEngine.Application.dataPath + "/Mono/CGDEVSDK.dll";
 				try
