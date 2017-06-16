@@ -442,7 +442,7 @@ class CSampleGrabberCB
 				unwantedPoint = new Point[XKOpenCGCamera.GetInstance().CGCameraBufLen];
 //				GrayValues = new byte[XKOpenCGCamera.GetInstance().CGCameraBufLen];
 
-				ResetMP4Info();
+				//ResetMP4Info();
 				m_warp = new Warper();
 				m_mode = MODE.MODE_MOTION;
 
