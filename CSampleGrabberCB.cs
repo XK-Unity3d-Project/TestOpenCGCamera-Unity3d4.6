@@ -329,7 +329,7 @@ class CSampleGrabberCB
 		}
 
 		#region Find Player Cross Point
-		int m_nMoveRadius;
+		const int m_nMoveRadius = 0;
 		//采集器输出图像的大小信息.
 		int Width;
 		int Height;
@@ -445,7 +445,7 @@ class CSampleGrabberCB
 				m_mode = MODE.MODE_MOTION;
 
 				m_bCurPointModified = false;
-				m_nMoveRadius = 0;
+//				m_nMoveRadius = 0;
 				m_Rect = Rectangle.Empty;
 
 				ResetRectify();
@@ -593,7 +593,8 @@ class CSampleGrabberCB
 		void CallGameUpdateZhunXingZuoBiao(Point pointVal)
 		{
 				//通知游戏更新准星坐标信息.
-				//            Form1.Instance.UpdateZhunXingZuoBiao(pointVal);
+//            	Form1.Instance.UpdateZhunXingZuoBiao(pointVal);
+				//XKOpenCGCamera.GetInstance().OutputMsg("crossPos " + pointVal);
 		}
 
 		void UpdateWindowRect(long timeVal)
@@ -866,17 +867,24 @@ class CSampleGrabberCB
 
 				if (bIsMouseInClient)
 				{
+//						XKOpenCGCamera.GetInstance().OutputMsg("rectR "+m_Rect.Right
+//								+", rectL "+m_Rect.Left
+//								+", rectB "+m_Rect.Bottom
+//								+", rectT "+m_Rect.Top);
 						nMax_x = (int)(((float)Math.Abs(m_Rect.Right - m_Rect.Left) / (float)Width) * nMaxx1);
 						nMax_y = (int)(((float)Math.Abs(m_Rect.Bottom - m_Rect.Top) / (float)Height) * nMaxy1);
 
-						int d1 = (int)Math.Abs(m_curMousePoint.X - (int)nMax_x);
+						nMax_x = nMax_x > m_Rect.Right ? m_Rect.Right : nMax_x;
+						nMax_y = nMax_y > m_Rect.Bottom ? m_Rect.Bottom : nMax_y;
+
+						int d1 = (int)Math.Abs(m_curMousePoint.X - nMax_x);
 						if (d1 > m_nMoveRadius)
 						{
 								m_curMousePoint.X = nMax_x;
 								m_bCurPointModified = true;
 						}
 
-						int d2 = (int)Math.Abs(m_curMousePoint.Y - (int)nMax_y);
+						int d2 = (int)Math.Abs(m_curMousePoint.Y - nMax_y);
 						if (d2 > m_nMoveRadius)
 						{
 								m_curMousePoint.Y = nMax_y;
