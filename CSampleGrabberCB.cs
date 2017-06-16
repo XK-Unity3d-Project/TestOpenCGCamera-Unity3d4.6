@@ -33,6 +33,15 @@ class CSampleGrabberCB
 		private int m_videoHeight;
 		private int m_stride;
 		private int m_CamID;
+		static CSampleGrabberCB _Instance;
+		public static CSampleGrabberCB GetInstance()
+		{
+				if (_Instance == null) {
+						//Msg("create CSampleGrabberCB!");
+						_Instance = new CSampleGrabberCB(0);
+				}
+				return _Instance;
+		}
 		#endregion
 
 		/// zero based device index, and some device parms, plus the file name to save to
