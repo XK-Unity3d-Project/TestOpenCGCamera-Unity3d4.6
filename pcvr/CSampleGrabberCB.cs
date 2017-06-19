@@ -346,7 +346,7 @@ class CSampleGrabberCB
 
 		MODE m_mode;
 		//激光器枪在显示器上投射的坐标信息.
-		Point m_curMousePoint;
+		public static Point m_curMousePoint;
 		//存储显示器四个角在采集器图像里的坐标信息.
 		Point[] m_p4 = new Point[4];
 

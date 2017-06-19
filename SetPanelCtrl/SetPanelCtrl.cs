@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Drawing;
 
 public class SetPanelCtrl : MonoBehaviour
 {
-		public Image JiaoZhunCrossImg;
+		public UnityEngine.UI.Image JiaoZhunCrossImg;
 		public Sprite[] JiaoZhunCross;
+		public RectTransform ZhunXingTrP1;
 		// Use this for initialization
 		void Start()
 		{
@@ -23,6 +25,21 @@ public class SetPanelCtrl : MonoBehaviour
 				if (Input.GetKeyUp(KeyCode.G)) {
 						ChangeJiaoZhunPic();
 				}
+
+				UpdateZhunXingZuoBiao(CSampleGrabberCB.m_curMousePoint);
+		}
+
+		void UpdateZhunXingZuoBiao(Point pointVal)
+		{
+				int px = pointVal.X;
+				px = px > 1360 ? 1360 : px;
+				px = px < 0 ? 0 : px;
+
+				//int py = 768 - pointVal.Y; //反转坐标Y值信息.
+				int py = pointVal.Y;
+				py = py > 768 ? 768 : py;
+				py = py < 0 ? 0 : py;
+				ZhunXingTrP1.localPosition = new Vector3(px, py, 0);
 		}
 
 		void InitJiaoZhunZuoBiao()
