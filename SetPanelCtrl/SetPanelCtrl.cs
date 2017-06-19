@@ -9,9 +9,16 @@ public class SetPanelCtrl : MonoBehaviour
 		public UnityEngine.UI.Image JiaoZhunCrossImg;
 		public Sprite[] JiaoZhunCross;
 		public RectTransform ZhunXingTrP1;
+		static SetPanelCtrl _Instance;
+		public static SetPanelCtrl GetInstance()
+		{
+				return _Instance;
+		}
+
 		// Use this for initialization
 		void Start()
 		{
+				_Instance = this;
 				JiaoZhunCrossImg.enabled = false;
 		}
 
@@ -23,7 +30,11 @@ public class SetPanelCtrl : MonoBehaviour
 				}
 
 				if (Input.GetKeyUp(KeyCode.G)) {
-						ChangeJiaoZhunPic();
+//						ChangeJiaoZhunPic();
+						if (JiaoZhunCrossImg.enabled)
+						{
+								CSampleGrabberCB.GetInstance().ActiveJiaoZhunZuoBiao();
+						}
 				}
 
 				UpdateZhunXingZuoBiao(CSampleGrabberCB.m_curMousePoint);
@@ -50,15 +61,24 @@ public class SetPanelCtrl : MonoBehaviour
 				Debug.Log("InitJiaoZhunZuoBiao!");
 //				ZhunXingZB.Visible = false;
 //				ZhunXingP1.Visible = false;
+				ZhunXingTrP1.gameObject.SetActive(false);
 				IndexCrossJZ = 0;
 				ChangeJiaoZhunPic();
 				JiaoZhunCrossImg.enabled = true;
+
+				if (CSampleGrabberCB.GetInstance() != null) {
+						CSampleGrabberCB.GetInstance().InitJiaoZhunZuoBiao();	
+				}
 //				pcvr.m_CamCB.InitJiaoZhunZuoBiao();
 		}
 
 		byte IndexCrossJZ;
 		public void ChangeJiaoZhunPic()
 		{
+				if (!JiaoZhunCrossImg.enabled) {
+						return;	
+				}
+
 				//Console.WriteLine("indexVal " + indexVal);
 				switch (IndexCrossJZ)
 				{
@@ -72,6 +92,7 @@ public class SetPanelCtrl : MonoBehaviour
 				default:
 						IndexCrossJZ = 0;
 						JiaoZhunCrossImg.enabled = false;
+						ZhunXingTrP1.gameObject.SetActive(true);
 //						ZhunXingZB.Visible = true;
 //						ZhunXingP1.Visible = true;
 						break;

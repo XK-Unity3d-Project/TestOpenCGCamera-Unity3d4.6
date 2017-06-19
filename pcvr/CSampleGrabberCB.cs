@@ -617,7 +617,10 @@ class CSampleGrabberCB
 		void CallGameChangeJiaoZhunPic()
 		{
 				//通知游戏更新校准图片信息.
-//            Form1.Instance.ChangeJiaoZhunPic((byte)(m_nLed + 1));
+//            	Form1.Instance.ChangeJiaoZhunPic((byte)(m_nLed + 1));
+				if (SetPanelCtrl.GetInstance() != null) {
+						SetPanelCtrl.GetInstance().ChangeJiaoZhunPic();
+				}
 		}
 
 		void OpenPlayerJiGuangQi()
