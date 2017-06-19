@@ -37,6 +37,12 @@ public class XKOpenCGCamera : MonoBehaviour
 		static XKOpenCGCamera _Instance;
 		public static XKOpenCGCamera GetInstance()
 		{
+				if (_Instance == null) {
+						GameObject obj = new GameObject();
+						DontDestroyOnLoad(obj);
+						obj.name = "XKCGCameraCtrl";
+						_Instance = obj.AddComponent<XKOpenCGCamera>();
+				}
 				return _Instance;
 		}
 
@@ -68,7 +74,8 @@ public class XKOpenCGCamera : MonoBehaviour
 				}
 				#endif
 
-				_Instance = this;
+				//_Instance = this;
+				CGCameraBufLen = CGCameraWith * CGCameraHeight;
 				mImg = new Texture2D(CGCameraWith, CGCameraHeight, TextureFormat.ARGB32, false);
 				mBufHandle = new byte[CGCameraBufLen];
 
