@@ -334,22 +334,22 @@ public class XKOpenCGCamera : MonoBehaviour
 
 		//设置CGCamera的参数,用于调整摄像头位置.
 		void SetPlayCGCameraInfo()
-		{
+        {
+                SetCGCameraIsOpen(true);
 				if (mDeviceHandle == IntPtr.Zero) {
 						return;
 				}
 				CGAPI.SetExposureTime(mDeviceHandle, 16383);
-				SetCGCameraIsOpen(true);
 		}
 
 		//设置CGCamera的参数,
 		void SetFindPointCGCameraInfo()
-		{
+        {
+                SetCGCameraIsOpen(false);
 				if (mDeviceHandle == IntPtr.Zero) {
 						return;
 				}
 				CGAPI.SetExposureTime(mDeviceHandle, 239);
-				SetCGCameraIsOpen(false);
 		}
 
 		void Update()
