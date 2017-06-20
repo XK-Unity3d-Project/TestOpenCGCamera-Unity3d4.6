@@ -37,7 +37,7 @@ class CSampleGrabberCB
 		public static CSampleGrabberCB GetInstance()
 		{
 				if (_Instance == null) {
-						//Msg("create CSampleGrabberCB!");
+						ScreenLog.Log("create CSampleGrabberCB!");
 						_Instance = new CSampleGrabberCB(0);
 				}
 				return _Instance;
@@ -531,7 +531,7 @@ class CSampleGrabberCB
 								MaxPoint.Y = m_p4[i].Y;
 						}
 				}
-//				XKOpenCGCamera.GetInstance().OutputMsg("MaxPoint "+MaxPoint+", MinPoint "+MinPoint);
+//				ScreenLog.Log("MaxPoint "+MaxPoint+", MinPoint "+MinPoint);
 		}
 
 		void ResetRectify()
@@ -632,7 +632,7 @@ class CSampleGrabberCB
 		{
 				//通知游戏更新准星坐标信息.
 //            	Form1.Instance.UpdateZhunXingZuoBiao(pointVal);
-				//XKOpenCGCamera.GetInstance().OutputMsg("crossPos " + pointVal);
+				//ScreenLog.Log("crossPos " + pointVal);
 				XKPlayerCrossCtrl playerCross = XKPlayerCrossCtrl.GetInstance(IndexMousePoint);
 				if (playerCross != null) {
 						playerCross.UpdateZhunXingZuoBiao(pointVal);
@@ -662,7 +662,7 @@ class CSampleGrabberCB
 						//3333 = 10000 / (1000 / 320); -> 每隔10秒获取一次干扰光源信息,320是采集器的刷新帧率.
 						if (getFrameNum % 3333 == 0)
 						{
-								//XKOpenCGCamera.GetInstance().OutputMsg("getUnwantedPoint...");
+								//ScreenLog.Log("getUnwantedPoint...");
 								getUnwantedPoint(pBuffer);
 						}
 						getFrameNum++;
@@ -679,7 +679,7 @@ class CSampleGrabberCB
 
 				if (unwantedPointNum > 0)
 				{
-						//XKOpenCGCamera.GetInstance().OutputMsg("subUnWantedPoint -> pointNum "+unwantedPointNum);
+						//ScreenLog.Log("subUnWantedPoint -> pointNum "+unwantedPointNum);
 						subUnWantedPoint(pBuffer, bufferLen);
 				}
 
@@ -924,10 +924,10 @@ class CSampleGrabberCB
 
 				if (bIsMouseInClient)
 				{
-//						XKOpenCGCamera.GetInstance().OutputMsg("rectR "+m_Rect.Right
-//								+", rectL "+m_Rect.Left
-//								+", rectB "+m_Rect.Bottom
-//								+", rectT "+m_Rect.Top);
+//						ScreenLog.Log("rectR "+m_Rect.Right
+//										+", rectL "+m_Rect.Left
+//										+", rectB "+m_Rect.Bottom
+//										+", rectT "+m_Rect.Top);
 						nMax_x = (int)(((float)Math.Abs(m_Rect.Right - m_Rect.Left) / (float)Width) * nMaxx1);
 						nMax_y = (int)(((float)Math.Abs(m_Rect.Bottom - m_Rect.Top) / (float)Height) * nMaxy1);
 

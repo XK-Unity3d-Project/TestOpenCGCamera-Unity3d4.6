@@ -348,11 +348,6 @@ public class XKOpenCGCamera : MonoBehaviour
 				CGAPI.SetExposureTime(mDeviceHandle, 239);
 		}
 
-		public void OutputMsg(string msg)
-		{
-				Debug.Log(msg);
-		}
-
 		void Update()
 		{
 				//test start
