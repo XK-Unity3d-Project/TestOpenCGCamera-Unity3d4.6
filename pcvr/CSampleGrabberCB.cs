@@ -344,7 +344,7 @@ class CSampleGrabberCB
 		float m_fMark;
 		float m_fExsmothX, m_fExsmothY;
 
-		MODE m_mode;
+		public static MODE m_mode;
 		//激光器枪在显示器上投射的坐标信息.
 		public static Point m_curMousePoint;
 		//存储显示器四个角在采集器图像里的坐标信息.

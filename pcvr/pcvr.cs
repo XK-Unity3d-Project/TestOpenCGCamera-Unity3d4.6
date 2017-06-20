@@ -72,7 +72,14 @@ public class pcvr
 				buffer[HID_BUF_LEN - 1] = WriteEnd_2;
 
 				//buffer[7]: 0 -> 激光器P1,  1 -> 激光器P2.
-				buffer[7] = (byte)(0x01 << CSampleGrabberCB.IndexMousePoint);
+				switch (CSampleGrabberCB.m_mode) {
+				case MODE.MODE_MOTION:
+						buffer[7] = (byte)(0x01 << CSampleGrabberCB.IndexMousePoint);
+						break;
+				case MODE.MODE_SET_CALIBRATION:
+						buffer[7] = 0xFF;
+						break;
+				}
 
 				buffer[20] = 0x00;
 				for(int i = 2; i < 12; i++)
