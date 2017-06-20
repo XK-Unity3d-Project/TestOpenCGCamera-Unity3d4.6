@@ -97,15 +97,16 @@ public class MyCOMDevice : MonoBehaviour
 								}
 
 								COMTxData();
-								if (pcvr.IsJiaoYanHid || pcvr.IsSlowLoopCom) {
-										Thread.Sleep(100);
-								}
-								else {
-										Thread.Sleep(25);
-								}
+//								if (pcvr.IsJiaoYanHid || pcvr.IsSlowLoopCom) {
+//										Thread.Sleep(100);
+//								}
+//								else {
+//										Thread.Sleep(25);
+//								}
+								Thread.Sleep(1);
 								COMRxData();
 								IsTestWRPer = true;
-								Thread.Sleep(25);
+								//Thread.Sleep(25);
 						}
 						while (_SerialPort.IsOpen);
 						CloseComPort();
@@ -114,9 +115,9 @@ public class MyCOMDevice : MonoBehaviour
 
 				void COMTxData()
 				{
-						if (XkGameCtrl.IsGameOnQuit) {
-								return;
-						}
+//						if (XkGameCtrl.IsGameOnQuit) {
+//								return;
+//						}
 
 						try
 						{
@@ -127,18 +128,18 @@ public class MyCOMDevice : MonoBehaviour
 						}
 						catch (Exception exception)
 						{
-								if (XkGameCtrl.IsGameOnQuit) {
-										return;
-								}
+//								if (XkGameCtrl.IsGameOnQuit) {
+//										return;
+//								}
 								Debug.LogError("Tx error:COM!!! " + exception);
 						}
 				}
 
 				void COMRxData()
 				{
-						if (XkGameCtrl.IsGameOnQuit) {
-								return;
-						}
+//						if (XkGameCtrl.IsGameOnQuit) {
+//								return;
+//						}
 
 						try
 						{
@@ -151,13 +152,13 @@ public class MyCOMDevice : MonoBehaviour
 						}
 						catch (Exception exception)
 						{
-								if (XkGameCtrl.IsGameOnQuit) {
-										return;
-								}
-
-								if (GameTypeCtrl.AppTypeStatic == AppGameType.LianJiServer) {
-										return;
-								}
+//								if (XkGameCtrl.IsGameOnQuit) {
+//										return;
+//								}
+//
+//								if (GameTypeCtrl.AppTypeStatic == AppGameType.LianJiServer) {
+//										return;
+//								}
 
 								Debug.LogError("Rx error:COM..." + exception);
 								IsReadMsgComTimeOut = true;
@@ -193,9 +194,9 @@ public class MyCOMDevice : MonoBehaviour
 						DontDestroyOnLoad(obj);
 						_Instance = obj.AddComponent<MyCOMDevice>();
 
-						if (pcvr.IsTestHardWare) {
-								TestComPort.GetInstance();
-						}
+//						if (pcvr.IsTestHardWare) {
+//								TestComPort.GetInstance();
+//						}
 				}
 				return _Instance;
 		}
