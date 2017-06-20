@@ -56,12 +56,6 @@ public class XKPlayerCrossCtrl : MonoBehaviour
 				}
 		}
 
-		// Update is called once per frame
-//		void Update()
-//		{
-//
-//		}
-
 		public void UpdateZhunXingZuoBiao(Point pointVal)
 		{
 				int px = pointVal.X;
@@ -81,5 +75,18 @@ public class XKPlayerCrossCtrl : MonoBehaviour
 				if (CrossRtTr != null) {
 						CrossRtTr.localPosition = lp;
 				}
+		}
+
+		public static void SetAllCrossActive(bool isActive)
+		{
+				_InstanceP1.SetCrossActive(isActive);
+				_InstanceP2.SetCrossActive(isActive);
+				_InstanceP3.SetCrossActive(isActive);
+				_InstanceP4.SetCrossActive(isActive);
+		}
+
+		void SetCrossActive(bool isActive)
+		{
+				gameObject.SetActive(isActive);
 		}
 }

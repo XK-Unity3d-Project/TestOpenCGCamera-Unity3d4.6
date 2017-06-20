@@ -612,6 +612,7 @@ class CSampleGrabberCB
 						return;
 				}
 				m_bRectifyState = true;
+				ScreenLog.Log("ActiveJiaoZhunZuoBiao...");
 		}
 
 		void CallGameChangeJiaoZhunPic()
