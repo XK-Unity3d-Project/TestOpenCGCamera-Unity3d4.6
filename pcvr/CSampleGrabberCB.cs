@@ -633,6 +633,10 @@ class CSampleGrabberCB
 				//通知游戏更新准星坐标信息.
 //            	Form1.Instance.UpdateZhunXingZuoBiao(pointVal);
 				//XKOpenCGCamera.GetInstance().OutputMsg("crossPos " + pointVal);
+				XKPlayerCrossCtrl playerCross = XKPlayerCrossCtrl.GetInstance(IndexMousePoint);
+				if (playerCross != null) {
+						playerCross.UpdateZhunXingZuoBiao(pointVal);
+				}
 		}
 
 		void UpdateWindowRect(long timeVal)
@@ -728,6 +732,11 @@ class CSampleGrabberCB
 								m_bCurPointModified = false;
 								//改变准星坐标.
 								CallGameUpdateZhunXingZuoBiao(m_curMousePoint);
+						}
+
+						IndexMousePoint++;
+						if (IndexMousePoint >= MaxMousePointNum) {
+								IndexMousePoint = 0;
 						}
 						break;
 
@@ -946,6 +955,9 @@ class CSampleGrabberCB
 				//    m_curMousePoint.Y = -1;
 				//}
 		}
+
+		const byte MaxMousePointNum = 4;
+		byte IndexMousePoint;
 
 		//灰度图的阀值.
 		byte GrayThreshold = 120;
