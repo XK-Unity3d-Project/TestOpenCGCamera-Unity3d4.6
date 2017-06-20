@@ -16,6 +16,7 @@ public class pcvr
 		// Use this for initialization
 		pcvr()
 		{
+				HID_BUF_LEN = MyCOMDevice.ComThreadClass.BufLenWrite;
 				InitJiaoYanMiMa();
 		}
 
@@ -71,7 +72,7 @@ public class pcvr
 				buffer[HID_BUF_LEN - 1] = WriteEnd_2;
 
 				//buffer[7]: 0 -> 激光器P1,  1 -> 激光器P2.
-
+				buffer[7] = (byte)(0x01 << CSampleGrabberCB.IndexMousePoint);
 
 				buffer[20] = 0x00;
 				for(int i = 2; i < 12; i++)

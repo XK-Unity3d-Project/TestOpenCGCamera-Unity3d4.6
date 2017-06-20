@@ -957,7 +957,7 @@ class CSampleGrabberCB
 		}
 
 		const byte MaxMousePointNum = 4;
-		byte IndexMousePoint;
+		public static byte IndexMousePoint;
 
 		//灰度图的阀值.
 		byte GrayThreshold = 120;
