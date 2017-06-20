@@ -198,7 +198,7 @@ public class XKOpenCGCamera : MonoBehaviour
 
 		void OnApplicationQuit()
 		{
-				Debug.Log("OnApplicationQuit...");
+				Debug.Log("OnApplicationQuit...CGCamera");
 				CloseCGCamera();
 		}
 

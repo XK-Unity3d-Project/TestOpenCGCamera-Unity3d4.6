@@ -121,6 +121,7 @@ public class MyCOMDevice : MonoBehaviour
 
 						try
 						{
+								pcvr.GetInstance().SendMessage();
 								IsReadComMsg = false;
 								_SerialPort.Write(WriteByteMsg, 0, WriteByteMsg.Length);
 								_SerialPort.DiscardOutBuffer();
@@ -284,7 +285,7 @@ public class MyCOMDevice : MonoBehaviour
 
 		void OnApplicationQuit()
 		{
-				Debug.Log("OnApplicationQuit...Com");
+				Debug.Log("OnApplicationQuit...ComDevice");
 //				XkGameCtrl.IsGameOnQuit = true;
 				ComThreadClass.CloseComPort();
 				Invoke("CloseComThread", 2f);
