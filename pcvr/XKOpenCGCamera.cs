@@ -26,8 +26,8 @@ public class XKOpenCGCamera : MonoBehaviour
 		long LastTimeVal;
 		int CameraFrameVal = 60;
 		int CGCamFrameCount;
-		public bool IsPlayCGCam;
-		public bool IsShowCGCamFrame;
+		public bool IsPlayCGCam = true;
+		public bool IsShowCGCamFrame = true;
 		Texture2D mImg = null;
 		const int CGCameraWith = 320;
 		const int CGCameraHeight = 240;
@@ -328,6 +328,8 @@ public class XKOpenCGCamera : MonoBehaviour
 //				param.dri.devROISize.iWidth = 320;
 //				param.dri.devROISize.iHeight = 240;
 //				CGAPI.SetResolution(mDeviceHandle, param);
+
+				SetFindPointCGCameraInfo();
 		}
 
 		//设置CGCamera的参数,用于调整摄像头位置.
@@ -337,6 +339,7 @@ public class XKOpenCGCamera : MonoBehaviour
 						return;
 				}
 				CGAPI.SetExposureTime(mDeviceHandle, 16383);
+				SetCGCameraIsOpen(true);
 		}
 
 		//设置CGCamera的参数,
@@ -346,6 +349,7 @@ public class XKOpenCGCamera : MonoBehaviour
 						return;
 				}
 				CGAPI.SetExposureTime(mDeviceHandle, 239);
+				SetCGCameraIsOpen(false);
 		}
 
 		void Update()
@@ -363,5 +367,11 @@ public class XKOpenCGCamera : MonoBehaviour
 						SetFindPointCGCameraInfo();
 				}
 				//test end
+		}
+
+		public void SetCGCameraIsOpen(bool isOpen)
+		{
+				IsPlayCGCam = isOpen;
+				IsShowCGCamFrame = isOpen;
 		}
 }
