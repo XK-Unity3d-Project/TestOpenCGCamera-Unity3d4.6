@@ -44,7 +44,7 @@ public class MyCOMDevice : MonoBehaviour
 								return;
 						}
 
-						_SerialPort = new SerialPort(ComPortName, 38400, Parity.None, 8, StopBits.One);
+						_SerialPort = new SerialPort(ComPortName, 115200, Parity.None, 8, StopBits.One);
 						_SerialPort.NewLine = _NewLine;
 						_SerialPort.Encoding = Encoding.GetEncoding("iso-8859-1");
 						_SerialPort.ReadTimeout = ReadTimeout;

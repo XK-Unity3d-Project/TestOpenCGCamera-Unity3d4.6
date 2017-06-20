@@ -64,8 +64,7 @@ public class pcvr
 						return;
 				}
 
-				byte []buffer;
-				buffer = new byte[HID_BUF_LEN];
+                byte[] buffer = new byte[HID_BUF_LEN];
 				buffer[0] = WriteHead_1;
 				buffer[1] = WriteHead_2;
 				buffer[HID_BUF_LEN - 2] = WriteEnd_1;
@@ -116,7 +115,11 @@ public class pcvr
 								continue;
 						}
 						buffer[29] ^= buffer[i];
-				}	
-				MyCOMDevice.ComThreadClass.WriteByteMsg = buffer;	
+                }
+                MyCOMDevice.ComThreadClass.WriteByteMsg = buffer;
+
+//                byte[] bufferTmp = {0x02, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x59, 0x00, 0xd1, 0xbe, 0x2c, 0xdb,
+//                        0xb5, 0x82, 0x4d, 0x03, 0x59, 0x39, 0x4a, 0x6e, 0x80, 0x06, 0x26, 0x0a, 0x2a, 0x2c, 0x0d, 0x0a};
+//                MyCOMDevice.ComThreadClass.WriteByteMsg = bufferTmp;
 		}
 }
