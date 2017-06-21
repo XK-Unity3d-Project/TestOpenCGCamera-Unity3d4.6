@@ -738,10 +738,6 @@ class CSampleGrabberCB
 								if (IndexMousePoint >= MaxMousePointNum) {
 										IndexMousePoint = 0;
 								}
-
-//								if (MyCOMDevice.GetInstance() != null) {
-//										MyCOMDevice.GetInstance().SendMessage();		
-//								}
 						}
 
 						IndexMousePointRecord++;
