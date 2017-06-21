@@ -357,6 +357,7 @@ public class XKOpenCGCamera : MonoBehaviour
 				//test start
 				if (Input.GetKeyUp(KeyCode.K)) {
 						Snapshot();
+						SetCGCameraIsOpen(!IsPlayCGCam);
 				}
 
 				if (Input.GetKeyUp(KeyCode.P)) {

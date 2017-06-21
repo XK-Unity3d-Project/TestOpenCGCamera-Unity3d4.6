@@ -56,6 +56,12 @@ public class XKPlayerCrossCtrl : MonoBehaviour
 				}
 		}
 
+		void FixedUpdate()
+		{
+				UpdatePlayerCrossPos();
+		}
+
+		Vector3 CrossPos;
 		public void UpdateZhunXingZuoBiao(Point pointVal)
 		{
 				int px = pointVal.X;
@@ -66,14 +72,17 @@ public class XKPlayerCrossCtrl : MonoBehaviour
 				int py = pointVal.Y;
 				py = py > 768 ? 768 : py;
 				py = py < 0 ? 0 : py;
+				CrossPos = new Vector3(px, py, 0);
+		}
 
-				Vector3 lp = new Vector3(px, py, 0);
+		void UpdatePlayerCrossPos()
+		{
 				if (CrossTr != null) {
-						CrossTr.localPosition = lp;
+						CrossTr.localPosition = CrossPos;
 				}
 
 				if (CrossRtTr != null) {
-						CrossRtTr.localPosition = lp;
+						CrossRtTr.localPosition = CrossPos;
 				}
 		}
 

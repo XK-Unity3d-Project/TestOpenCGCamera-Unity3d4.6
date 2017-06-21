@@ -37,8 +37,8 @@ class CSampleGrabberCB
 		public static CSampleGrabberCB GetInstance()
 		{
 				if (_Instance == null) {
-						ScreenLog.Log("create CSampleGrabberCB!");
 						_Instance = new CSampleGrabberCB(0);
+						ScreenLog.Log("create CSampleGrabberCB!");
 				}
 				return _Instance;
 		}
@@ -612,7 +612,7 @@ class CSampleGrabberCB
 						return;
 				}
 				m_bRectifyState = true;
-				ScreenLog.Log("ActiveJiaoZhunZuoBiao...");
+                ScreenLog.Log("ActiveJiaoZhunZuoBiao -> m_nLed " + m_nLed);
 		}
 
 		void CallGameChangeJiaoZhunPic()
@@ -620,7 +620,7 @@ class CSampleGrabberCB
 				//通知游戏更新校准图片信息.
 //            	Form1.Instance.ChangeJiaoZhunPic((byte)(m_nLed + 1));
 				if (SetPanelCtrl.GetInstance() != null) {
-						SetPanelCtrl.GetInstance().ChangeJiaoZhunPic();
+						SetPanelCtrl.GetInstance().ChangeIndexCrossJZ();
 				}
 		}
 

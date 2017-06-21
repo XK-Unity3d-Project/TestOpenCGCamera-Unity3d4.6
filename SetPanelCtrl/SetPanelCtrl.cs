@@ -35,6 +35,7 @@ public class SetPanelCtrl : MonoBehaviour
 								CSampleGrabberCB.GetInstance().ActiveJiaoZhunZuoBiao();
 						}
 				}
+				ChangeJiaoZhunPic();
 		}
 
 		void InitJiaoZhunZuoBiao()
@@ -56,13 +57,26 @@ public class SetPanelCtrl : MonoBehaviour
 		}
 
 		byte IndexCrossJZ;
+		public void ChangeIndexCrossJZ()
+		{
+				//ScreenLog.Log("IndexCrossJZ " + IndexCrossJZ);
+				switch (IndexCrossJZ)
+				{
+						case 0:
+						case 1:
+						case 2:
+						case 3:
+								IndexCrossJZ = (byte)(IndexCrossJZ + 1);
+								break;
+				}
+		}
+
 		public void ChangeJiaoZhunPic()
 		{
 				if (!JiaoZhunCrossImg.enabled) {
 						return;	
 				}
 
-				//Console.WriteLine("indexVal " + indexVal);
 				switch (IndexCrossJZ)
 				{
 				case 0:
@@ -70,14 +84,11 @@ public class SetPanelCtrl : MonoBehaviour
 				case 2:
 				case 3:
 						JiaoZhunCrossImg.sprite = JiaoZhunCross[IndexCrossJZ];
-						IndexCrossJZ = (byte)(IndexCrossJZ + 1);
 						break;
 				default:
 						IndexCrossJZ = 0;
 						JiaoZhunCrossImg.enabled = false;
 						XKPlayerCrossCtrl.SetAllCrossActive(true);
-//						ZhunXingZB.Visible = true;
-//						ZhunXingP1.Visible = true;
 						break;
 				}
 		}
