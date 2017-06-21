@@ -42,6 +42,7 @@ public class XKOpenCGCamera : MonoBehaviour
 						DontDestroyOnLoad(obj);
 						obj.name = "XKCGCameraCtrl";
 						_Instance = obj.AddComponent<XKOpenCGCamera>();
+						CSampleGrabberCB.GetInstance();
 				}
 				return _Instance;
 		}
@@ -94,8 +95,6 @@ public class XKOpenCGCamera : MonoBehaviour
 						Debug.Log("Device start...");
 						CGAPI.DeviceStart(mDeviceHandle);
 						SetCGCameraInfo();
-
-						CSampleGrabberCB.GetInstance();
 				}
 		}
 

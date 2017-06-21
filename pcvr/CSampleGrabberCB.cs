@@ -629,7 +629,7 @@ class CSampleGrabberCB
 		void CallGameUpdateZhunXingZuoBiao(Point pointVal)
 		{
 				//通知游戏更新准星坐标信息.
-//            	Form1.Instance.UpdateZhunXingZuoBiao(pointVal);
+				//Form1.Instance.UpdateZhunXingZuoBiao(pointVal);
 				//ScreenLog.Log("crossPos " + pointVal);
 				XKPlayerCrossCtrl playerCross = XKPlayerCrossCtrl.GetInstance(IndexMousePoint);
 				if (playerCross != null) {
@@ -732,7 +732,7 @@ class CSampleGrabberCB
 								CallGameUpdateZhunXingZuoBiao(m_curMousePoint);
 						}
 
-						if (IndexMousePointRecord % 3 == 2 || false) {
+						if (IndexMousePointRecord % 5 == 4 || false) {
 								//ScreenLog.Log("IndexMousePoint ----- " + IndexMousePoint);
 								IndexMousePoint++;
 								if (IndexMousePoint >= MaxMousePointNum) {
@@ -745,7 +745,7 @@ class CSampleGrabberCB
 						}
 
 						IndexMousePointRecord++;
-						if (IndexMousePointRecord >= 3)  {
+						if (IndexMousePointRecord >= 5)  {
 										IndexMousePointRecord = 0;
 						}
 						break;
