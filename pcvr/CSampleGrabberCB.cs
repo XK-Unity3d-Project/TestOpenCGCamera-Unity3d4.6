@@ -9,15 +9,12 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Runtime.InteropServices.ComTypes;
 
-//using DirectShowLib;
-
 public enum MODE
 {
 		MODE_SET_CALIBRATION,
 		MODE_MOTION,
 };
 
-//typedef void (__stdcall ashPINTPROC)(Point);
 class CSampleGrabberCB
 {
 		#region Member variables
@@ -735,9 +732,21 @@ class CSampleGrabberCB
 								CallGameUpdateZhunXingZuoBiao(m_curMousePoint);
 						}
 
-						IndexMousePoint++;
-						if (IndexMousePoint >= MaxMousePointNum) {
-								IndexMousePoint = 0;
+						if (IndexMousePointRecord % 3 == 2 || false) {
+								//ScreenLog.Log("IndexMousePoint ----- " + IndexMousePoint);
+								IndexMousePoint++;
+								if (IndexMousePoint >= MaxMousePointNum) {
+										IndexMousePoint = 0;
+								}
+
+//								if (MyCOMDevice.GetInstance() != null) {
+//										MyCOMDevice.GetInstance().SendMessage();		
+//								}
+						}
+
+						IndexMousePointRecord++;
+						if (IndexMousePointRecord >= 3)  {
+										IndexMousePointRecord = 0;
 						}
 						break;
 
@@ -958,8 +967,8 @@ class CSampleGrabberCB
 		}
 
 		const byte MaxMousePointNum = 4;
+		byte IndexMousePointRecord;
 		public static byte IndexMousePoint;
-
 		//灰度图的阀值.
 		byte GrayThreshold = 120;
 		Point GetPointToConvert(byte[] pBuffer)

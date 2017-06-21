@@ -367,6 +367,10 @@ public class XKOpenCGCamera : MonoBehaviour
 				if (Input.GetKeyUp(KeyCode.L)) {
 						SetFindPointCGCameraInfo();
 				}
+
+				if (Input.GetKeyUp(KeyCode.F)) {
+						IsShowCGCamFrame = !IsShowCGCamFrame;
+				}
 				//test end
 		}
 

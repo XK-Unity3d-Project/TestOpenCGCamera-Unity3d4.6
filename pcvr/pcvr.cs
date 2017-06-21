@@ -74,6 +74,7 @@ public class pcvr
 				switch (CSampleGrabberCB.m_mode) {
 				case MODE.MODE_MOTION:
 						buffer[7] = (byte)(0x01 << CSampleGrabberCB.IndexMousePoint);
+//						ScreenLog.Log("IndexMousePoint *** "+CSampleGrabberCB.IndexMousePoint);
 						break;
 				case MODE.MODE_SET_CALIBRATION:
 						buffer[7] = 0xFF;

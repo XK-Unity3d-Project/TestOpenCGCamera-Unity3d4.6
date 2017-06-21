@@ -103,7 +103,7 @@ public class MyCOMDevice : MonoBehaviour
 //								else {
 //										Thread.Sleep(25);
 //								}
-								Thread.Sleep(1);
+								//Thread.Sleep(1);
 								COMRxData();
 								IsTestWRPer = true;
 								//Thread.Sleep(25);
@@ -113,7 +113,7 @@ public class MyCOMDevice : MonoBehaviour
 						Debug.Log("Close run thead...");
 				}
 
-				void COMTxData()
+				public void COMTxData()
 				{
 //						if (XkGameCtrl.IsGameOnQuit) {
 //								return;
@@ -257,6 +257,13 @@ public class MyCOMDevice : MonoBehaviour
 						ScreenLog.Log("CheckTimeOutReadMsg -> The app should restart to open the COM!");
 						ComThreadClass.IsReadMsgComTimeOut = true;
 						RestartComPort();
+				}
+		}
+
+		public void SendMessage()
+		{
+				if (_ComThreadClass != null) {
+						_ComThreadClass.COMTxData();
 				}
 		}
 
