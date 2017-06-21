@@ -14,7 +14,7 @@ public class MyCOMDevice : MonoBehaviour
 				static SerialPort _SerialPort;
 				public static int BufLenRead = 39;
 				public static int BufLenReadEnd = 4;
-				public static  int BufLenWrite = 32;
+				public static  int BufLenWrite = 10;
 				public static byte[] ReadByteMsg = new byte[BufLenRead];
 				public static byte[] WriteByteMsg = new byte[BufLenWrite];
 				static string RxStringData;
@@ -82,31 +82,24 @@ public class MyCOMDevice : MonoBehaviour
 				{
 						do
 						{
-								IsTestWRPer = false;
+//								IsTestWRPer = false;
 								if (IsReadMsgComTimeOut) {
 										CloseComPort();
 										break;
 								}
 
-								if (IsLoadingLevel || IsStopComTX) {
-										if (IsStopComTX) {
-												IsReadComMsg = false;
-										}
-										Thread.Sleep(1000);
-										continue;
-								}
+//								if (IsLoadingLevel || IsStopComTX) {
+//										if (IsStopComTX) {
+//												IsReadComMsg = false;
+//										}
+//										Thread.Sleep(1000);
+//										continue;
+//								}
 
 								COMTxData();
-//								if (pcvr.IsJiaoYanHid || pcvr.IsSlowLoopCom) {
-//										Thread.Sleep(100);
-//								}
-//								else {
-//										Thread.Sleep(25);
-//								}
 								//Thread.Sleep(1);
-								COMRxData();
+								//COMRxData();
 								IsTestWRPer = true;
-								//Thread.Sleep(25);
 						}
 						while (_SerialPort.IsOpen);
 						CloseComPort();
@@ -287,6 +280,7 @@ public class MyCOMDevice : MonoBehaviour
 		{
 				if (ComThread != null) {
 						ComThread.Abort();
+						ComThread = null;
 				}
 		}
 

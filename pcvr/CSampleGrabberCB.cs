@@ -732,7 +732,7 @@ class CSampleGrabberCB
 								CallGameUpdateZhunXingZuoBiao(m_curMousePoint);
 						}
 
-						if (IndexMousePointRecord % 5 == 4 || false) {
+						if (IndexMousePointRecord % 5 == 4 || true) {
 								//ScreenLog.Log("IndexMousePoint ----- " + IndexMousePoint);
 								IndexMousePoint++;
 								if (IndexMousePoint >= MaxMousePointNum) {
