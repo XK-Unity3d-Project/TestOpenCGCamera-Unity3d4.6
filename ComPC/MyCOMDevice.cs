@@ -272,7 +272,7 @@ public class MyCOMDevice : MonoBehaviour
 				TimeLastVal = Time.realtimeSinceStartup;
 
 				if (!ComThreadClass.IsReadComMsg && !ComThreadClass.IsLoadingLevel) {
-						CheckTimeOutReadMsg();
+						//CheckTimeOutReadMsg();
 				}
 		}
 
