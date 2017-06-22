@@ -629,14 +629,23 @@ class CSampleGrabberCB
 		void CallGameUpdateZhunXingZuoBiao(Point pointVal)
 		{
 				//通知游戏更新准星坐标信息.
-				//Form1.Instance.UpdateZhunXingZuoBiao(pointVal);
 				//ScreenLog.Log("crossPos " + pointVal);
 				byte indexVal = IndexMousePoint;
-				if (indexVal % 2 != 0) {
+				if (indexVal % JiGuangLQ != 0) {
 						return;
 				}
 
-				XKPlayerCrossCtrl playerCross = XKPlayerCrossCtrl.GetInstance((byte)(indexVal / 2));
+				//错位处理玩家准星,可能是因为摄像头图像采集延迟.
+				//或激光器延时或串口通信延时导致.
+				if (indexVal == 0) {
+						indexVal = (byte)(MaxMousePointNum - 1);
+				}
+				else {
+						indexVal = (byte)((indexVal / JiGuangLQ) - 1);
+				}
+				//ScreenLog.Log(indexVal+" <- indexVal ********** IndexMousePoint -> " + IndexMousePoint);
+
+				XKPlayerCrossCtrl playerCross = XKPlayerCrossCtrl.GetInstance(indexVal);
 				if (playerCross != null) {
 						playerCross.UpdateZhunXingZuoBiao(pointVal);
 				}
@@ -737,17 +746,10 @@ class CSampleGrabberCB
 								CallGameUpdateZhunXingZuoBiao(m_curMousePoint);
 						}
 
-						if (IndexMousePointRecord % 5 == 4 || true) {
-								//ScreenLog.Log("IndexMousePoint ----- " + IndexMousePoint);
-								IndexMousePoint++;
-								if (IndexMousePoint >= MaxMousePointNum) {
-										IndexMousePoint = 0;
-								}
-						}
-
-						IndexMousePointRecord++;
-						if (IndexMousePointRecord >= 5)  {
-										IndexMousePointRecord = 0;
+						//ScreenLog.Log("IndexMousePoint ----- " + IndexMousePoint);
+						IndexMousePoint++;
+						if (IndexMousePoint >= MaxMousePointLQ) {
+								IndexMousePoint = 0;
 						}
 						break;
 
@@ -967,9 +969,11 @@ class CSampleGrabberCB
 				//}
 		}
 
-		//4->激光器数量. 2->冷却激光器使用,确保同一时刻只有一个激光点在画面里.
-		const byte MaxMousePointNum = 4 * 2;
-		byte IndexMousePointRecord;
+		//4->激光器数量.
+		const byte MaxMousePointNum = 4;
+		//2->冷却激光器使用,确保同一时刻只有一个激光点在画面里.
+		public static byte JiGuangLQ = 2;
+		byte MaxMousePointLQ = (byte)(MaxMousePointNum * JiGuangLQ);
 		public static byte IndexMousePoint;
 		//灰度图的阀值.
 		byte GrayThreshold = 120;

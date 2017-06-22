@@ -71,12 +71,16 @@ public class pcvr
 				buffer[HID_BUF_LEN - 2] = WriteEnd_1;
 				buffer[HID_BUF_LEN - 1] = WriteEnd_2;
 
+				int iSeed = (int)DateTime.Now.ToBinary();
+				Random ra = new Random(iSeed);
+				buffer[6] =  (byte)ra.Next(0, 253);
+
 				byte jiGuangQiCount = CSampleGrabberCB.IndexMousePoint;
 				//buffer[7]: 0 -> 激光器P1,  1 -> 激光器P2.
 				switch (CSampleGrabberCB.m_mode) {
 				case MODE.MODE_MOTION:
-						if (jiGuangQiCount % 2 == 0) {
-								buffer[7] = (byte)(0x01 << (jiGuangQiCount / 2));
+						if (jiGuangQiCount % CSampleGrabberCB.JiGuangLQ == 0) {
+								buffer[7] = (byte)(0x01 << (jiGuangQiCount / CSampleGrabberCB.JiGuangLQ));
 						}
 						else {
 								//用于冷却关闭所有激光器,确保摄像机画面同一时刻只有一个激光点.
