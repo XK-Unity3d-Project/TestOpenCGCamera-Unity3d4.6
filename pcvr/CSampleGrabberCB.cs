@@ -631,7 +631,12 @@ class CSampleGrabberCB
 				//通知游戏更新准星坐标信息.
 				//Form1.Instance.UpdateZhunXingZuoBiao(pointVal);
 				//ScreenLog.Log("crossPos " + pointVal);
-				XKPlayerCrossCtrl playerCross = XKPlayerCrossCtrl.GetInstance(IndexMousePoint);
+				byte indexVal = IndexMousePoint;
+				if (indexVal % 2 != 0) {
+						return;
+				}
+
+				XKPlayerCrossCtrl playerCross = XKPlayerCrossCtrl.GetInstance((byte)(indexVal / 2));
 				if (playerCross != null) {
 						playerCross.UpdateZhunXingZuoBiao(pointVal);
 				}
