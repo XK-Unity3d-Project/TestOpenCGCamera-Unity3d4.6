@@ -962,7 +962,8 @@ class CSampleGrabberCB
 				//}
 		}
 
-		const byte MaxMousePointNum = 4;
+		//4->激光器数量. 2->冷却激光器使用,确保同一时刻只有一个激光点在画面里.
+		const byte MaxMousePointNum = 4 * 2;
 		byte IndexMousePointRecord;
 		public static byte IndexMousePoint;
 		//灰度图的阀值.

@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define USE_OLD_TONGXIN
+using System;
 
 public class pcvr
 {
@@ -70,10 +71,17 @@ public class pcvr
 				buffer[HID_BUF_LEN - 2] = WriteEnd_1;
 				buffer[HID_BUF_LEN - 1] = WriteEnd_2;
 
+				byte jiGuangQiCount = CSampleGrabberCB.IndexMousePoint;
 				//buffer[7]: 0 -> 激光器P1,  1 -> 激光器P2.
 				switch (CSampleGrabberCB.m_mode) {
 				case MODE.MODE_MOTION:
-						buffer[7] = (byte)(0x01 << CSampleGrabberCB.IndexMousePoint);
+						if (jiGuangQiCount % 2 == 0) {
+								buffer[7] = (byte)(0x01 << (jiGuangQiCount / 2));
+						}
+						else {
+								//用于冷却关闭所有激光器,确保摄像机画面同一时刻只有一个激光点.
+								buffer[7] = 0x00;
+						}
 						//ScreenLog.Log("IndexMousePoint *** "+CSampleGrabberCB.IndexMousePoint);
 						break;
 				case MODE.MODE_SET_CALIBRATION:
@@ -81,42 +89,44 @@ public class pcvr
 						break;
 				}
 
-//				buffer[20] = 0x00;
-//				for(int i = 2; i < 12; i++)
-//				{
-//						buffer[20] ^= buffer[i];
-//				}
+				#if USE_OLD_TONGXIN
+				buffer[20] = 0x00;
+				for(int i = 2; i < 12; i++)
+				{
+						buffer[20] ^= buffer[i];
+				}
 
-//				RandomJiaoYanMiMaVal();
-//				for (int i = 0; i < 4; i++)
-//				{
-//						buffer[i + 21] = JiaoYanMiMaRand[i];
-//				}
+				RandomJiaoYanMiMaVal();
+				for (int i = 0; i < 4; i++)
+				{
+						buffer[i + 21] = JiaoYanMiMaRand[i];
+				}
 
 				//加密校验开始.
-//				int iSeed = (int)DateTime.Now.ToBinary();
-//				Random ra = new Random(iSeed);
-//				for (int i = 26; i < 29; i++)
-//				{
-//						buffer[i] =  (byte)ra.Next(0, 64);
-//				}
+				int iSeed = (int)DateTime.Now.ToBinary();
+				Random ra = new Random(iSeed);
+				for (int i = 26; i < 29; i++)
+				{
+						buffer[i] =  (byte)ra.Next(0, 64);
+				}
 
-//				buffer[25] = 0x00;
-//				for (int i = 26; i < 29; i++)
-//				{
-//						buffer[25] ^= buffer[i];
-//				}
+				buffer[25] = 0x00;
+				for (int i = 26; i < 29; i++)
+				{
+						buffer[25] ^= buffer[i];
+				}
 				//加密校验结束.
 
-//				buffer[29] = 0x00;
-//				for (int i = 0; i < HID_BUF_LEN; i++)
-//				{
-//						if (i == 29) 
-//						{
-//								continue;
-//						}
-//						buffer[29] ^= buffer[i];
-//				}
+				buffer[29] = 0x00;
+				for (int i = 0; i < HID_BUF_LEN; i++)
+				{
+						if (i == 29) 
+						{
+								continue;
+						}
+						buffer[29] ^= buffer[i];
+				}
+				#endif
 				MyCOMDevice.ComThreadClass.WriteByteMsg = buffer;
 
 //				byte[] bufferTmp = {0x02, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x59, 0x00, 0xd1, 0xbe, 0x2c, 0xdb,
