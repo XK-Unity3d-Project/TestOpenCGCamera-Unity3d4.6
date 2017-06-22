@@ -290,7 +290,7 @@ class CSampleGrabberCB
 				{
 						for (int x = 0; x < Width; x++)
 						{
-								if (pBuffer[x + (y * Width)] > GrayThreshold) 
+								if (pBuffer[x + (y * Width)] > 200) 
 								{
 										//记录干扰光源坐标信息.
 										unwantedPoint[unwantedPointNum].X = x;
@@ -337,7 +337,7 @@ class CSampleGrabberCB
 						return;
 				}
 				m_bRectifyState = true;
-    		ScreenLog.Log("ActiveJiaoZhunZuoBiao -> m_nLed " + m_nLed);
+				ScreenLog.Log("ActiveJiaoZhunZuoBiao -> m_nLed " + m_nLed);
 		}
 
 		void CallGameChangeJiaoZhunPic()
