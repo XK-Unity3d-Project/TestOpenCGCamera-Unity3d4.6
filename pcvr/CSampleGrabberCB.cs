@@ -473,10 +473,12 @@ class CSampleGrabberCB
 								CallGameUpdateZhunXingZuoBiao(m_curMousePoint);
 						}
 
-						//ScreenLog.Log("IndexMousePoint ----- " + IndexMousePoint);
-						IndexMousePoint++;
-						if (IndexMousePoint >= MaxMousePointLQ) {
-								IndexMousePoint = 0;
+						if (IsCGCameraQuickCOM) {
+								AddIndexMousePoint();
+						}
+						else {
+								//通知pcvr下一帧数据关闭所有激光器.
+								pcvr.SetIsCloseAllJiGuangQi(true);
 						}
 						break;
 
@@ -484,6 +486,25 @@ class CSampleGrabberCB
 						break;
 				}
 				return;
+		}
+
+		/**
+		 * IsCGCameraQuickCOM == true  -> 摄像机刷新速度快于串口通信速度.
+		 * IsCGCameraQuickCOM == false -> 摄像机刷新速度慢于串口通信速度.
+		 */
+		public static bool IsCGCameraQuickCOM = false;
+		/**
+		 * 改变IndexMousePoint数值,控制激光器状态信息.
+		 * 1.当串口通信速度大于摄像头刷新速度时,在串口通信里控制激光器切换状态.
+		 * 2.当串口通信速度小于摄像头刷新速度时,在摄像机刷新图像里控制激光器切换状态.
+		 */
+		public void AddIndexMousePoint()
+		{
+				//ScreenLog.Log("IndexMousePoint ----- " + IndexMousePoint);
+				IndexMousePoint++;
+				if (IndexMousePoint >= MaxMousePointLQ) {
+						IndexMousePoint = 0;
+				}
 		}
 
 		//有效图像范围的信息.

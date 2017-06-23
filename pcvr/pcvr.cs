@@ -58,6 +58,12 @@ public class pcvr
 				}
 		}
 
+		static bool IsCloseAllJiGuangQi;
+		public static void SetIsCloseAllJiGuangQi(bool isClose)
+		{
+				IsCloseAllJiGuangQi = isClose;
+		}
+
 		public void SendMessage()
 		{
 				if (!MyCOMDevice.IsFindDeviceDt) {
@@ -78,12 +84,29 @@ public class pcvr
 				//buffer[7]: 0 -> 激光器P1,  1 -> 激光器P2.
 				switch (CSampleGrabberCB.m_mode) {
 				case MODE.MODE_MOTION:
-						if (jiGuangQiCount % CSampleGrabberCB.JiGuangLQ == 0) {
-								buffer[7] = (byte)(0x01 << (jiGuangQiCount / CSampleGrabberCB.JiGuangLQ));
+						if (!CSampleGrabberCB.IsCGCameraQuickCOM) {
+								if (IsCloseAllJiGuangQi) {
+										//用于冷却关闭所有激光器,确保摄像机画面同一时刻只有一个激光点.
+										buffer[7] = 0x00;
+										SetIsCloseAllJiGuangQi(false);
+										if (CSampleGrabberCB.GetInstance() != null) {
+												CSampleGrabberCB.GetInstance().AddIndexMousePoint();
+										}
+								}
+								else {
+										if (jiGuangQiCount % CSampleGrabberCB.JiGuangLQ == 0) {
+												buffer[7] = (byte)(0x01 << (jiGuangQiCount / CSampleGrabberCB.JiGuangLQ));
+										}
+								}
 						}
 						else {
-								//用于冷却关闭所有激光器,确保摄像机画面同一时刻只有一个激光点.
-								buffer[7] = 0x00;
+								if (jiGuangQiCount % CSampleGrabberCB.JiGuangLQ == 0) {
+										buffer[7] = (byte)(0x01 << (jiGuangQiCount / CSampleGrabberCB.JiGuangLQ));
+								}
+								else {
+										//用于冷却关闭所有激光器,确保摄像机画面同一时刻只有一个激光点.
+										buffer[7] = 0x00;
+								}
 						}
 						//ScreenLog.Log("IndexMousePoint *** "+CSampleGrabberCB.IndexMousePoint);
 						break;
