@@ -16,7 +16,7 @@ using DeviceHandle = System.IntPtr;
 using System.Windows.Forms;
 using System.IO;
 using System.Drawing;
-using UnityEngine.SceneManagement;
+//using UnityEngine.SceneManagement;
 
 public class XKOpenCGCamera : MonoBehaviour
 {

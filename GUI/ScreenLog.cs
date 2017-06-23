@@ -69,14 +69,11 @@ public class ScreenLog : MonoBehaviour
 				if(Input.GetKeyUp("`")/* && !pcvr.bIsHardWare*/)
 				{
 						isShow = !isShow;
-						if(isShow)
-						{
-								Cursor.visible = true;
+						if(isShow) {
+								Screen.lockCursor = false;
 								Log("show Screen Log...");
-						}
-						else
-						{
-								Cursor.visible = false;
+						} else {
+								Screen.lockCursor = true;
 								Log("hidden Screen Log...");
 						}
 				}
