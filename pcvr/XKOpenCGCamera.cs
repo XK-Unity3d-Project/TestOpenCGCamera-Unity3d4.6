@@ -369,6 +369,7 @@ public class XKOpenCGCamera : MonoBehaviour
 
 				if (Input.GetKeyUp(KeyCode.F)) {
 						IsShowCGCamFrame = !IsShowCGCamFrame;
+						pcvr.SetIsCloseAllJiGuangQi(true);
 				}
 				//test end
 		}

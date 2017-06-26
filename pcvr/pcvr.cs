@@ -62,6 +62,7 @@ public class pcvr
 		public static void SetIsCloseAllJiGuangQi(bool isClose)
 		{
 				IsCloseAllJiGuangQi = isClose;
+				//ScreenLog.Log("**** IsCloseAllJiGuangQi -> "+IsCloseAllJiGuangQi);
 		}
 
 		public void SendMessage()
@@ -88,7 +89,7 @@ public class pcvr
 								if (IsCloseAllJiGuangQi) {
 										//用于冷却关闭所有激光器,确保摄像机画面同一时刻只有一个激光点.
 										buffer[7] = 0x00;
-										SetIsCloseAllJiGuangQi(false);
+										IsCloseAllJiGuangQi = false;
 										if (CSampleGrabberCB.GetInstance() != null) {
 												CSampleGrabberCB.GetInstance().AddIndexMousePoint();
 										}
@@ -108,7 +109,9 @@ public class pcvr
 										buffer[7] = 0x00;
 								}
 						}
-						//ScreenLog.Log("IndexMousePoint *** "+CSampleGrabberCB.IndexMousePoint);
+						//ScreenLog.Log("jiGuangQiCount *** "+jiGuangQiCount+
+											//", buf07 -> "+buffer[7]+
+											//", IsCloseAllJiGuangQi -> "+IsCloseAllJiGuangQi);
 						break;
 				case MODE.MODE_SET_CALIBRATION:
 						buffer[7] = 0xFF;
